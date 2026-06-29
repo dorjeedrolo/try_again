@@ -1,0 +1,2438 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Safety Officer – OHS Assistant</title>
+  <meta name="description" content="Your Intelligent Occupational Health & Safety Assistant.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+/* ===================================================
+   AI Safety Officer – style.css
+   Primary: #005BAC  Secondary: #1E7E34  Accent: #F59E0B
+=================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── CSS Custom Properties ─────────────────────── */
+:root {
+  --primary:       #005BAC;
+  --primary-dark:  #004488;
+  --primary-light: #EBF3FC;
+  --secondary:     #1E7E34;
+  --secondary-light:#E8F5EC;
+  --accent:        #F59E0B;
+  --accent-light:  #FEF3C7;
+  --danger:        #DC2626;
+  --bg:            #FFFFFF;
+  --surface:       #F8FAFC;
+  --card:          #FFFFFF;
+  --border:        #E2E8F0;
+  --text:          #1A202C;
+  --text-muted:    #64748B;
+  --text-light:    #94A3B8;
+  --sidebar-bg:    #0F1C2E;
+  --sidebar-text:  #CBD5E1;
+  --sidebar-hover: #1A2D45;
+  --chat-user-bg:  #005BAC;
+  --chat-ai-bg:    #F1F5F9;
+  --shadow-sm:     0 1px 3px rgba(0,0,0,.08);
+  --shadow:        0 4px 12px rgba(0,0,0,.10);
+  --shadow-lg:     0 8px 24px rgba(0,0,0,.12);
+  --radius:        12px;
+  --radius-sm:     8px;
+  --radius-lg:     16px;
+  --font:          'Inter', system-ui, sans-serif;
+  --mono:          'JetBrains Mono', 'Courier New', monospace;
+  --transition:    .2s ease;
+}
+
+/* Dark mode */
+[data-theme="dark"] {
+  --bg:            #0D1117;
+  --surface:       #161B22;
+  --card:          #1F2937;
+  --border:        #30363D;
+  --text:          #E6EDF3;
+  --text-muted:    #8B949E;
+  --text-light:    #6E7681;
+  --sidebar-bg:    #0D1117;
+  --sidebar-hover: #161B22;
+  --chat-ai-bg:    #1F2937;
+  --primary-light: #0D2545;
+  --secondary-light:#0F2218;
+}
+
+/* ── Reset & Base ────────────────────────────────  */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  transition: background var(--transition), color var(--transition);
+}
+
+a { color: var(--primary); text-decoration: none; transition: color var(--transition); }
+a:hover { color: var(--primary-dark); }
+
+img { max-width: 100%; display: block; }
+
+/* ── Scrollbar ───────────────────────────────────  */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-light); }
+
+/* ── Typography ──────────────────────────────────  */
+h1,h2,h3,h4,h5,h6 { font-weight: 600; line-height: 1.3; color: var(--text); }
+h1 { font-size: clamp(1.75rem, 4vw, 2.75rem); }
+h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
+h3 { font-size: clamp(1.1rem, 2.5vw, 1.4rem); }
+p  { color: var(--text-muted); }
+
+/* ── Utility Classes ─────────────────────────────  */
+.text-primary   { color: var(--primary) !important; }
+.text-secondary { color: var(--secondary) !important; }
+.text-accent    { color: var(--accent) !important; }
+.text-muted     { color: var(--text-muted) !important; }
+.bg-primary-light { background: var(--primary-light) !important; }
+.bg-secondary-light { background: var(--secondary-light) !important; }
+
+.badge-ohs {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .7rem; font-weight: 600; padding: 3px 8px;
+  border-radius: 20px; text-transform: uppercase; letter-spacing: .5px;
+}
+.badge-ohs.blue   { background: var(--primary-light); color: var(--primary); }
+.badge-ohs.green  { background: var(--secondary-light); color: var(--secondary); }
+.badge-ohs.orange { background: var(--accent-light); color: #92400E; }
+
+/* ── Buttons ─────────────────────────────────────  */
+.btn-primary-ohs {
+  background: var(--primary); color: #fff; border: none;
+  padding: .6rem 1.4rem; border-radius: var(--radius-sm);
+  font-weight: 600; font-size: .9rem; cursor: pointer;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.btn-primary-ohs:hover {
+  background: var(--primary-dark); transform: translateY(-1px);
+  box-shadow: var(--shadow); color: #fff;
+}
+
+.btn-secondary-ohs {
+  background: transparent; color: var(--primary);
+  border: 2px solid var(--primary); padding: .55rem 1.3rem;
+  border-radius: var(--radius-sm); font-weight: 600; font-size: .9rem;
+  cursor: pointer; transition: all var(--transition);
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.btn-secondary-ohs:hover { background: var(--primary-light); }
+
+.btn-icon {
+  background: none; border: 1px solid var(--border); color: var(--text-muted);
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all var(--transition); font-size: .85rem;
+}
+.btn-icon:hover { background: var(--surface); color: var(--text); border-color: var(--primary); }
+
+/* ── Navigation ──────────────────────────────────  */
+.navbar-ohs {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: .75rem 0;
+  position: sticky; top: 0; z-index: 1000;
+  box-shadow: var(--shadow-sm);
+  transition: background var(--transition);
+}
+
+.navbar-brand-ohs {
+  display: flex; align-items: center; gap: .6rem;
+  font-size: 1.1rem; font-weight: 700; color: var(--text);
+  text-decoration: none;
+}
+.navbar-brand-ohs .brand-icon {
+  width: 36px; height: 36px; background: var(--primary);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1rem;
+}
+.navbar-brand-ohs .brand-name { color: var(--primary); }
+.navbar-brand-ohs .brand-sub  { color: var(--text-muted); font-size: .7rem; font-weight: 400; display: block; }
+
+.nav-link-ohs {
+  color: var(--text-muted) !important; font-weight: 500; font-size: .9rem;
+  padding: .4rem .8rem !important; border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+.nav-link-ohs:hover, .nav-link-ohs.active {
+  color: var(--primary) !important; background: var(--primary-light);
+}
+
+.dark-toggle {
+  background: none; border: 1px solid var(--border);
+  color: var(--text-muted); padding: .35rem .65rem;
+  border-radius: var(--radius-sm); cursor: pointer;
+  transition: all var(--transition); font-size: .85rem;
+}
+.dark-toggle:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ── Hero Section ────────────────────────────────  */
+.hero {
+  background: linear-gradient(135deg, #005BAC 0%, #003d7a 40%, #004488 70%, #1E7E34 100%);
+  color: #fff; padding: 5rem 0 4rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-title { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; color: #fff; }
+.hero-subtitle { font-size: 1.15rem; color: rgba(255,255,255,.8); margin-bottom: 2rem; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+  color: #fff; padding: .35rem .9rem; border-radius: 20px;
+  font-size: .8rem; font-weight: 600; margin-bottom: 1.5rem; backdrop-filter: blur(8px);
+}
+
+/* Hero search box */
+.hero-search {
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
+  border-radius: var(--radius-lg); padding: .5rem .5rem .5rem 1rem;
+  display: flex; gap: .5rem; align-items: center;
+  max-width: 640px; backdrop-filter: blur(10px);
+}
+.hero-search input {
+  flex: 1; background: none; border: none; outline: none;
+  color: #fff; font-size: 1rem; font-family: var(--font);
+}
+.hero-search input::placeholder { color: rgba(255,255,255,.55); }
+.hero-search button {
+  background: var(--accent); color: #1A202C; border: none;
+  padding: .6rem 1.3rem; border-radius: 10px; font-weight: 700;
+  cursor: pointer; font-size: .9rem; transition: all var(--transition);
+  display: flex; align-items: center; gap: .4rem;
+}
+.hero-search button:hover { background: #E08A00; transform: scale(1.02); }
+
+.hero-pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+.hero-pill {
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.9); padding: .3rem .9rem; border-radius: 20px;
+  font-size: .8rem; cursor: pointer; transition: all var(--transition);
+}
+.hero-pill:hover { background: rgba(255,255,255,.25); }
+
+/* Hero illustration */
+.hero-visual {
+  position: relative; display: flex; justify-content: center; align-items: center;
+}
+.hero-card-float {
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  border-radius: var(--radius-lg); padding: 1.5rem; backdrop-filter: blur(12px);
+  max-width: 320px; animation: floatY 4s ease-in-out infinite;
+}
+@keyframes floatY {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+.ai-chat-preview { font-size: .85rem; color: rgba(255,255,255,.9); }
+.ai-chat-preview .msg { margin-bottom: .75rem; }
+.ai-chat-preview .msg.ai { padding: .5rem .75rem; background: rgba(255,255,255,.15); border-radius: 10px; }
+.ai-chat-preview .msg.user { padding: .5rem .75rem; background: rgba(245,158,11,.25); border-radius: 10px; text-align: right; }
+.typing-dots { display: inline-flex; gap: 3px; }
+.typing-dots span { width: 6px; height: 6px; background: rgba(255,255,255,.6); border-radius: 50%; animation: blink 1.2s infinite; }
+.typing-dots span:nth-child(2) { animation-delay: .2s; }
+.typing-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%,80%,100% { opacity: .2; } 40% { opacity: 1; } }
+
+/* ── Stats Bar ───────────────────────────────────  */
+.stats-bar { background: var(--primary); color: #fff; padding: 1.5rem 0; }
+.stat-item { text-align: center; }
+.stat-number { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+.stat-label  { font-size: .8rem; color: rgba(255,255,255,.75); text-transform: uppercase; letter-spacing: .5px; }
+
+/* ── Section Styles ──────────────────────────────  */
+.section { padding: 5rem 0; }
+.section-alt { background: var(--surface); }
+.section-header { margin-bottom: 3rem; }
+.section-eyebrow {
+  font-size: .8rem; font-weight: 700; color: var(--primary);
+  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: .5rem;
+}
+.section-divider { width: 48px; height: 3px; background: var(--accent); border-radius: 2px; margin: 1rem 0; }
+
+/* ── Feature Cards ───────────────────────────────  */
+.feature-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 2rem;
+  height: 100%; transition: all var(--transition);
+  position: relative; overflow: hidden;
+}
+.feature-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transform: scaleX(0); transition: transform var(--transition); transform-origin: left;
+}
+.feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.feature-card:hover::before { transform: scaleX(1); }
+
+.feature-icon {
+  width: 52px; height: 52px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; margin-bottom: 1.2rem;
+}
+.feature-icon.blue   { background: var(--primary-light); color: var(--primary); }
+.feature-icon.green  { background: var(--secondary-light); color: var(--secondary); }
+.feature-icon.orange { background: var(--accent-light); color: #92400E; }
+
+/* ── Category Cards (Knowledge Base) ────────────  */
+.category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 1rem; }
+.category-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem 1rem;
+  display: flex; align-items: center; gap: .75rem;
+  cursor: pointer; transition: all var(--transition); text-decoration: none;
+}
+.category-card:hover { border-color: var(--primary); box-shadow: var(--shadow); transform: translateY(-2px); }
+.category-card .cat-icon { font-size: 1.4rem; flex-shrink: 0; }
+.category-card .cat-name { font-size: .88rem; font-weight: 600; color: var(--text); }
+.category-card .cat-count { font-size: .75rem; color: var(--text-muted); }
+
+/* ── Resource Cards ──────────────────────────────  */
+.resource-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.5rem;
+  transition: all var(--transition); height: 100%;
+}
+.resource-card:hover { box-shadow: var(--shadow); border-color: var(--primary); }
+.resource-card .resource-icon { font-size: 2rem; margin-bottom: 1rem; }
+.resource-card h5 { font-size: .95rem; margin-bottom: .5rem; }
+.resource-card p { font-size: .82rem; }
+
+/* ── Knowledge Article Cards ─────────────────────  */
+.article-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.5rem;
+  transition: all var(--transition); height: 100%;
+  display: flex; flex-direction: column;
+}
+.article-card:hover { box-shadow: var(--shadow); border-color: var(--primary); }
+.article-card h5 { font-size: 1rem; margin-bottom: .5rem; color: var(--text); }
+.article-card .article-meta { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .75rem; }
+.article-card p { font-size: .85rem; flex: 1; }
+.article-card .article-footer { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+
+/* ── FAQ Accordion ───────────────────────────────  */
+.faq-item { border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: .75rem; overflow: hidden; }
+.faq-question {
+  padding: 1rem 1.25rem; cursor: pointer; background: var(--card);
+  display: flex; justify-content: space-between; align-items: center;
+  font-weight: 500; font-size: .9rem; color: var(--text);
+  transition: background var(--transition); user-select: none;
+}
+.faq-question:hover { background: var(--primary-light); color: var(--primary); }
+.faq-question.active { background: var(--primary-light); color: var(--primary); }
+.faq-answer { padding: 0 1.25rem; max-height: 0; overflow: hidden; transition: all .3s ease; font-size: .88rem; color: var(--text-muted); }
+.faq-answer.open { max-height: 400px; padding: 1rem 1.25rem; }
+.faq-chevron { transition: transform .3s; font-size: .7rem; }
+.faq-question.active .faq-chevron { transform: rotate(180deg); }
+
+/* ── Chat Page Layout ────────────────────────────  */
+.chat-layout { display: flex; height: calc(100vh - 60px); overflow: hidden; }
+
+.chat-sidebar {
+  width: 260px; min-width: 260px; background: var(--sidebar-bg);
+  display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid #1E2D3D;
+}
+.sidebar-header { padding: 1rem; border-bottom: 1px solid #1E2D3D; }
+.sidebar-header .app-name { color: #fff; font-weight: 600; font-size: .95rem; }
+.sidebar-header .app-sub  { color: rgba(255,255,255,.4); font-size: .72rem; }
+
+.btn-new-chat {
+  display: flex; align-items: center; gap: .6rem;
+  width: 100%; padding: .65rem 1rem; border-radius: var(--radius-sm);
+  background: var(--primary); color: #fff; border: none; cursor: pointer;
+  font-size: .88rem; font-weight: 600; transition: background var(--transition); margin: .75rem 0;
+}
+.btn-new-chat:hover { background: var(--primary-dark); }
+
+.sidebar-section { padding: .5rem 1rem; }
+.sidebar-label { color: rgba(255,255,255,.3); font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .4rem; }
+.sidebar-item {
+  display: flex; align-items: center; gap: .6rem; padding: .5rem .75rem;
+  border-radius: 6px; cursor: pointer; color: var(--sidebar-text);
+  font-size: .85rem; transition: background var(--transition);
+}
+.sidebar-item:hover { background: var(--sidebar-hover); }
+.sidebar-item.active { background: var(--sidebar-hover); color: #fff; }
+.sidebar-item i { width: 16px; font-size: .8rem; color: rgba(255,255,255,.4); }
+
+.history-item {
+  padding: .45rem .75rem; border-radius: 6px; cursor: pointer;
+  color: var(--sidebar-text); font-size: .82rem; transition: background var(--transition);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.history-item:hover { background: var(--sidebar-hover); }
+.history-item.active { background: var(--sidebar-hover); color: #fff; }
+
+.sidebar-footer { margin-top: auto; padding: 1rem; border-top: 1px solid #1E2D3D; }
+.sidebar-footer-item { display: flex; align-items: center; gap: .6rem; color: rgba(255,255,255,.5); font-size: .8rem; padding: .4rem 0; cursor: pointer; transition: color var(--transition); }
+.sidebar-footer-item:hover { color: rgba(255,255,255,.85); }
+.sidebar-footer-item i { width: 16px; }
+
+/* Main chat */
+.chat-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.chat-header {
+  padding: .75rem 1.5rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg); flex-shrink: 0;
+}
+.chat-header-info h6 { margin: 0; font-size: .95rem; }
+.chat-header-info small { color: var(--text-muted); font-size: .78rem; }
+
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 1.5rem;
+  display: flex; flex-direction: column; gap: 1.5rem;
+}
+
+/* Message bubbles */
+.message { display: flex; gap: 1rem; max-width: 800px; width: 100%; }
+.message.user { flex-direction: row-reverse; margin-left: auto; }
+.message.user .message-content { background: var(--chat-user-bg); color: #fff; border-radius: var(--radius) var(--radius-sm) var(--radius-sm) var(--radius); }
+.message.ai   .message-content { background: var(--chat-ai-bg); border-radius: var(--radius-sm) var(--radius) var(--radius) var(--radius-sm); border: 1px solid var(--border); }
+
+.message-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: .9rem;
+}
+.message.ai .message-avatar { background: var(--primary); color: #fff; }
+.message.user .message-avatar { background: var(--secondary); color: #fff; }
+
+.message-content { padding: .9rem 1.1rem; min-width: 60px; max-width: 100%; }
+.message-content p { color: inherit; margin-bottom: .5rem; font-size: .9rem; line-height: 1.65; }
+.message-content p:last-child { margin-bottom: 0; }
+.message-content ul, .message-content ol { padding-left: 1.3rem; margin-bottom: .5rem; }
+.message-content li { font-size: .9rem; margin-bottom: .25rem; }
+.message-content strong { font-weight: 600; }
+.message-content code { font-family: var(--mono); background: rgba(0,0,0,.1); padding: .1em .3em; border-radius: 3px; font-size: .85em; }
+
+.message-meta { display: flex; align-items: center; gap: .5rem; margin-top: .5rem; font-size: .72rem; color: var(--text-light); }
+.message.user .message-meta { flex-direction: row-reverse; }
+.message-actions { display: flex; gap: .25rem; }
+.msg-action-btn { background: none; border: none; cursor: pointer; color: var(--text-light); padding: 2px 4px; border-radius: 4px; font-size: .75rem; transition: all var(--transition); }
+.msg-action-btn:hover { color: var(--primary); background: var(--primary-light); }
+
+/* AI response extras */
+.ai-response-extras { margin-top: 1rem; }
+.regulation-ref {
+  background: var(--primary-light); border-left: 3px solid var(--primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: .65rem .9rem; margin: .4rem 0;
+  font-size: .82rem; color: var(--text);
+}
+.disclaimer {
+  background: var(--accent-light); border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: .6rem .9rem; margin-top: .6rem;
+  font-size: .78rem; color: #78350F;
+}
+.follow-up-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .75rem; }
+.follow-up-chip {
+  background: var(--bg); border: 1px solid var(--border); color: var(--text-muted);
+  padding: .3rem .7rem; border-radius: 20px; font-size: .78rem; cursor: pointer;
+  transition: all var(--transition);
+}
+.follow-up-chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+/* Welcome screen */
+.chat-welcome { text-align: center; max-width: 620px; margin: auto; padding: 2rem; }
+.chat-welcome-icon { font-size: 3rem; margin-bottom: 1rem; }
+.chat-welcome h3 { margin-bottom: .5rem; }
+.chat-welcome p { margin-bottom: 1.5rem; }
+.prompt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; text-align: left; }
+.prompt-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: .85rem 1rem;
+  cursor: pointer; transition: all var(--transition); font-size: .85rem; color: var(--text);
+}
+.prompt-card:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+.prompt-card-title { font-weight: 600; font-size: .82rem; margin-bottom: .2rem; }
+.prompt-card-text  { color: var(--text-muted); font-size: .78rem; }
+.prompt-card:hover .prompt-card-text { color: var(--primary); }
+
+/* Typing indicator */
+.typing-indicator { display: flex; align-items: center; gap: .8rem; }
+.typing-indicator .message-content { display: flex; align-items: center; gap: .3rem; padding: .85rem 1.1rem; }
+.typing-dot { width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%; animation: typingPulse 1.4s infinite; }
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes typingPulse { 0%,60%,100% { transform: scale(.8); opacity: .5; } 30% { transform: scale(1); opacity: 1; } }
+
+/* Chat input */
+.chat-input-area {
+  padding: 1rem 1.5rem 1.25rem; border-top: 1px solid var(--border);
+  background: var(--bg); flex-shrink: 0;
+}
+.chat-input-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .65rem 1rem;
+  display: flex; align-items: flex-end; gap: .75rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.chat-input-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,91,172,.1); }
+.chat-input-box textarea {
+  flex: 1; background: none; border: none; outline: none; resize: none;
+  font-family: var(--font); font-size: .9rem; color: var(--text);
+  max-height: 160px; min-height: 24px; line-height: 1.5;
+}
+.chat-input-box textarea::placeholder { color: var(--text-light); }
+.chat-send-btn {
+  background: var(--primary); color: #fff; border: none;
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all var(--transition); font-size: .85rem; flex-shrink: 0;
+}
+.chat-send-btn:hover { background: var(--primary-dark); }
+.chat-send-btn:disabled { background: var(--border); cursor: default; }
+
+.chat-hints { display: flex; justify-content: space-between; align-items: center; margin-top: .5rem; }
+.chat-hint-text { font-size: .73rem; color: var(--text-light); }
+.chat-disclaimer { font-size: .71rem; color: var(--text-light); text-align: center; }
+
+/* ── About / Info Cards ──────────────────────────  */
+.team-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.5rem; text-align: center;
+  transition: all var(--transition);
+}
+.team-card:hover { box-shadow: var(--shadow); }
+.team-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+/* ── Contact ─────────────────────────────────────  */
+.contact-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 2rem;
+}
+.contact-info-item { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1.5rem; }
+.contact-info-icon {
+  width: 42px; height: 42px; border-radius: var(--radius-sm); flex-shrink: 0;
+  background: var(--primary-light); color: var(--primary);
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+
+/* Form styles */
+.form-control-ohs {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: .65rem .9rem;
+  font-family: var(--font); font-size: .9rem; color: var(--text);
+  width: 100%; outline: none; transition: border-color var(--transition), box-shadow var(--transition);
+}
+.form-control-ohs:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,91,172,.1); }
+.form-label-ohs { font-size: .85rem; font-weight: 600; color: var(--text); margin-bottom: .4rem; display: block; }
+
+/* ── Search ──────────────────────────────────────  */
+.search-box {
+  position: relative; max-width: 560px;
+}
+.search-box input {
+  width: 100%; background: var(--bg); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: .7rem 1rem .7rem 2.8rem;
+  font-size: .9rem; color: var(--text); outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,91,172,.1); }
+.search-box .search-icon { position: absolute; left: .9rem; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: .9rem; }
+.search-clear { position: absolute; right: .8rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-light); cursor: pointer; font-size: .85rem; display: none; }
+
+/* ── Filter Chips ────────────────────────────────  */
+.filter-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.filter-chip {
+  padding: .35rem .85rem; border-radius: 20px; font-size: .8rem; font-weight: 500;
+  border: 1.5px solid var(--border); background: var(--bg); color: var(--text-muted);
+  cursor: pointer; transition: all var(--transition);
+}
+.filter-chip:hover, .filter-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+/* ── Alert / Info Box ────────────────────────────  */
+.alert-ohs {
+  padding: .9rem 1.1rem; border-radius: var(--radius-sm);
+  font-size: .85rem; display: flex; gap: .75rem; align-items: flex-start;
+}
+.alert-ohs.info { background: var(--primary-light); color: var(--primary); border: 1px solid rgba(0,91,172,.2); }
+.alert-ohs.success { background: var(--secondary-light); color: var(--secondary); border: 1px solid rgba(30,126,52,.2); }
+.alert-ohs.warning { background: var(--accent-light); color: #92400E; border: 1px solid rgba(245,158,11,.2); }
+
+/* ── Footer ──────────────────────────────────────  */
+.footer {
+  background: var(--sidebar-bg); color: var(--sidebar-text);
+  padding: 3rem 0 1.5rem;
+}
+.footer-brand .brand-icon { background: var(--primary); }
+.footer h6 { color: #fff; margin-bottom: 1rem; font-size: .88rem; text-transform: uppercase; letter-spacing: 1px; }
+.footer-links { list-style: none; }
+.footer-links li { margin-bottom: .4rem; }
+.footer-links a { color: var(--sidebar-text); font-size: .85rem; transition: color var(--transition); }
+.footer-links a:hover { color: #fff; }
+.footer-divider { border-top: 1px solid #1E2D3D; margin: 2rem 0 1.5rem; }
+.footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; font-size: .8rem; color: rgba(255,255,255,.4); }
+.version-badge { background: rgba(255,255,255,.1); padding: 2px 8px; border-radius: 10px; font-size: .72rem; }
+
+/* ── Page Hero (inner pages) ─────────────────────  */
+.page-hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff; padding: 3rem 0;
+}
+.page-hero h1 { color: #fff; font-size: clamp(1.6rem, 4vw, 2.5rem); }
+.page-hero p { color: rgba(255,255,255,.8); }
+
+/* ── Sidebar mobile toggle ───────────────────────  */
+.sidebar-toggle {
+  display: none; background: none; border: 1px solid var(--border);
+  color: var(--text-muted); width: 36px; height: 36px;
+  border-radius: var(--radius-sm); align-items: center; justify-content: center;
+  cursor: pointer; font-size: .9rem;
+}
+
+/* ── Responsive ──────────────────────────────────  */
+@media (max-width: 991px) {
+  .chat-sidebar {
+    position: fixed; left: -260px; top: 60px; bottom: 0; z-index: 999;
+    transition: left .3s ease; box-shadow: var(--shadow-lg);
+  }
+  .chat-sidebar.open { left: 0; }
+  .sidebar-toggle { display: flex; }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 998; }
+  .sidebar-overlay.active { display: block; }
+  .prompt-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767px) {
+  .hero { padding: 3rem 0 2.5rem; }
+  .section { padding: 3rem 0; }
+  .hero-search { flex-direction: column; }
+  .hero-search button { width: 100%; justify-content: center; }
+  .chat-input-area { padding: .75rem 1rem 1rem; }
+  .chat-messages { padding: 1rem; }
+  .category-grid { grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); }
+  .stats-bar .row > div { margin-bottom: .5rem; }
+}
+
+/* ── Animations ──────────────────────────────────  */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.fade-in { animation: fadeIn .4s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* ── Tooltip ─────────────────────────────────────  */
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+  content: attr(data-tooltip); position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%) scale(.9); background: var(--text); color: var(--bg);
+  padding: .3rem .65rem; border-radius: 6px; font-size: .72rem; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: all var(--transition);
+}
+[data-tooltip]:hover::after { opacity: 1; transform: translateX(-50%) scale(1); }
+
+/* ── Print ───────────────────────────────────────  */
+@media print {
+  .navbar-ohs, .chat-sidebar, .chat-input-area, footer { display: none !important; }
+}
+
+
+/* ── Single-page routing extras ─────────────────── */
+.page { display: none; }
+.page.active { display: block; }
+#chat-page.active { display: flex; flex-direction: column; height: 100vh; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     INFO BANNER
+════════════════════════════════════════════════════ -->
+<div id="info-banner" style="background:var(--primary);color:#fff;padding:.5rem 0;font-size:.82rem;text-align:center">
+  <div class="container d-flex justify-content-between align-items-center">
+    <span><i class="fa-solid fa-circle-info me-2"></i>AI Safety Officer is in beta. Answers are for guidance only — always verify with your local OHS authority.</span>
+    <button id="dismiss-banner" style="background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:1rem">&times;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════════════ -->
+<nav class="navbar-ohs" id="main-nav">
+  <div class="container d-flex align-items-center justify-content-between">
+    <a href="#" class="navbar-brand-ohs" onclick="showPage('home')">
+      <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <div>
+        <span class="brand-name">AI Safety Officer</span>
+        <span class="brand-sub">OHS Assistant</span>
+      </div>
+    </a>
+    <div class="d-none d-lg-flex align-items-center gap-1">
+      <a href="#" class="nav-link-ohs" onclick="showPage('home')">Home</a>
+      <a href="#" class="nav-link-ohs" onclick="showPage('chat')">AI Assistant</a>
+      <a href="#" class="nav-link-ohs" onclick="showPage('resources')">Knowledge Base</a>
+      <a href="#" class="nav-link-ohs" onclick="showPage('about')">About</a>
+      <a href="#" class="nav-link-ohs" onclick="showPage('contact')">Contact</a>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button class="dark-toggle" title="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
+      <a href="#" class="btn-primary-ohs d-none d-md-flex" onclick="showPage('chat')"><i class="fa-solid fa-robot"></i> Start Chat</a>
+      <button class="btn-icon d-lg-none" data-bs-toggle="collapse" data-bs-target="#mobile-nav">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+  </div>
+  <div class="collapse" id="mobile-nav">
+    <div class="container py-2 d-flex flex-column gap-1">
+      <a href="#" class="nav-link-ohs" onclick="showPage('home')">Home</a>
+      <a href="#" class="nav-link-ohs" onclick="showPage('chat')">AI Assistant</a>
+      <a href="#" class="nav-link-ohs" onclick="showPage('resources')">Knowledge Base</a>
+      <a href="#" class="nav-link-ohs" onclick="showPage('about')">About</a>
+      <a href="#" class="nav-link-ohs" onclick="showPage('contact')">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: HOME
+════════════════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container position-relative">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-7">
+          <div class="hero-badge"><i class="fa-solid fa-shield-halved"></i> AI-Powered OHS Guidance</div>
+          <h1 class="hero-title mb-3">AI Safety Officer</h1>
+          <p class="hero-subtitle">Your Intelligent Occupational Health &amp; Safety Assistant. Get instant, regulation-referenced guidance on workplace safety, PPE, risk assessments, and labour compliance.</p>
+          <form id="hero-search-form" class="hero-search">
+            <i class="fa-solid fa-magnifying-glass" style="color:rgba(255,255,255,.5)"></i>
+            <input id="hero-search-input" type="text" placeholder="Ask about workplace safety…" autocomplete="off">
+            <button type="submit"><i class="fa-solid fa-paper-plane"></i> Ask Now</button>
+          </form>
+          <div class="hero-pills">
+            <span class="hero-pill">Safety harness requirements</span>
+            <span class="hero-pill">Confined space checklist</span>
+            <span class="hero-pill">Welding PPE</span>
+            <span class="hero-pill">Chemical storage</span>
+            <span class="hero-pill">Lockout/Tagout</span>
+            <span class="hero-pill">Fire extinguisher</span>
+          </div>
+        </div>
+        <div class="col-lg-5 d-none d-lg-flex justify-content-center">
+          <div class="hero-visual">
+            <div class="hero-card-float">
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <div style="width:32px;height:32px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem">
+                  <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                  <div style="color:#fff;font-size:.82rem;font-weight:600">AI Safety Officer</div>
+                  <div style="color:rgba(255,255,255,.4);font-size:.7rem">Online · Ready to help</div>
+                </div>
+              </div>
+              <div class="ai-chat-preview">
+                <div class="msg user">What PPE is required for welding? 🔥</div>
+                <div class="msg ai">
+                  <strong>Welding PPE Requirements:</strong><br>
+                  • Welding helmet (shade 10-14)<br>
+                  • Flame-resistant gloves &amp; clothing<br>
+                  • Respiratory protection (N95+)<br>
+                  • Steel-toed safety boots<br>
+                  <em style="font-size:.75em;opacity:.7">Per OSHA 1910.252 &amp; ISO 45001</em>
+                </div>
+                <div class="msg ai" style="padding:.4rem .6rem">
+                  <div class="typing-dots"><span></span><span></span><span></span></div>
+                  <span style="font-size:.75rem;opacity:.6;margin-left:.3rem">Preparing follow-up…</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="row text-center g-3">
+        <div class="col-6 col-md-3 stat-item"><div class="stat-number"><span data-count="500" data-suffix="+">0+</span></div><div class="stat-label">OHS Topics Covered</div></div>
+        <div class="col-6 col-md-3 stat-item"><div class="stat-number"><span data-count="50" data-suffix="+">0+</span></div><div class="stat-label">Regulations Referenced</div></div>
+        <div class="col-6 col-md-3 stat-item"><div class="stat-number"><span data-count="20" data-suffix="+">0+</span></div><div class="stat-label">Safety Categories</div></div>
+        <div class="col-6 col-md-3 stat-item"><div class="stat-number">24/7</div><div class="stat-label">Available Anytime</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header text-center">
+        <p class="section-eyebrow">Why Use AI Safety Officer</p>
+        <h2>Everything You Need for Workplace Safety</h2>
+        <div class="section-divider mx-auto"></div>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon blue"><i class="fa-solid fa-robot"></i></div><h3>AI-Powered Guidance</h3><p>Ask any OHS question in plain language. Get instant, structured answers with references to relevant regulations and standards.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon green"><i class="fa-solid fa-book-open"></i></div><h3>Regulation Library</h3><p>Covers Bhutan OHS Regulation, Labour Act, ISO 45001, OSHA, ILO Conventions, NIOSH, WHO, and HSE UK guidelines.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon orange"><i class="fa-solid fa-clipboard-check"></i></div><h3>Safety Checklists</h3><p>Interactive checklists for confined spaces, working at heights, LOTO, fire safety, and more — ready to use on-site.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon green"><i class="fa-solid fa-shield-halved"></i></div><h3>Risk Assessment Help</h3><p>Step-by-step guidance on hazard identification, risk rating, hierarchy of controls, and documentation requirements.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon blue"><i class="fa-solid fa-mobile-screen"></i></div><h3>Works Everywhere</h3><p>Fully responsive design works on desktop, tablet, and mobile. Access safety guidance from the office or job site.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon orange"><i class="fa-solid fa-lock"></i></div><h3>Privacy First</h3><p>Local knowledge base means your queries stay private. No account required. Optionally connect your own AI API key.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header text-center">
+        <p class="section-eyebrow">Knowledge Coverage</p>
+        <h2>Safety Topics We Cover</h2>
+        <div class="section-divider mx-auto"></div>
+      </div>
+      <div class="category-grid">
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">🦺</span><div><div class="cat-name">PPE</div><div class="cat-count">8 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">🏗️</span><div><div class="cat-name">Construction</div><div class="cat-count">12 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">⚡</span><div><div class="cat-name">Electrical Safety</div><div class="cat-count">7 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">⚗️</span><div><div class="cat-name">Chemical Safety</div><div class="cat-count">9 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">🔥</span><div><div class="cat-name">Fire Safety</div><div class="cat-count">6 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">🕳️</span><div><div class="cat-name">Confined Spaces</div><div class="cat-count">5 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">🪜</span><div><div class="cat-name">Working at Heights</div><div class="cat-count">7 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">🔒</span><div><div class="cat-name">Lockout/Tagout</div><div class="cat-count">4 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">⚙️</span><div><div class="cat-name">Machine Safety</div><div class="cat-count">8 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">📋</span><div><div class="cat-name">Risk Assessment</div><div class="cat-count">6 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">🚨</span><div><div class="cat-name">Emergency Response</div><div class="cat-count">5 articles</div></div></a>
+        <a href="#" class="category-card" onclick="showPage('resources')"><span class="cat-icon">🪑</span><div><div class="cat-name">Ergonomics</div><div class="cat-count">5 articles</div></div></a>
+      </div>
+      <div class="text-center mt-4">
+        <a href="#" class="btn-primary-ohs" onclick="showPage('resources')"><i class="fa-solid fa-arrow-right"></i> Browse All Articles</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who uses -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header text-center"><p class="section-eyebrow">Designed For</p><h2>Who Uses AI Safety Officer</h2><div class="section-divider mx-auto"></div></div>
+      <div class="row g-4">
+        <div class="col-6 col-md-4 col-lg-2"><div class="text-center"><div style="font-size:2.5rem;margin-bottom:.75rem">🏢</div><div style="font-weight:600;font-size:.9rem;color:var(--text)">Employers</div><div style="font-size:.78rem;color:var(--text-muted)">Understand duties and obligations</div></div></div>
+        <div class="col-6 col-md-4 col-lg-2"><div class="text-center"><div style="font-size:2.5rem;margin-bottom:.75rem">👷</div><div style="font-weight:600;font-size:.9rem;color:var(--text)">Workers</div><div style="font-size:.78rem;color:var(--text-muted)">Know your rights and responsibilities</div></div></div>
+        <div class="col-6 col-md-4 col-lg-2"><div class="text-center"><div style="font-size:2.5rem;margin-bottom:.75rem">🦺</div><div style="font-weight:600;font-size:.9rem;color:var(--text)">Safety Officers</div><div style="font-size:.78rem;color:var(--text-muted)">Quick regulation reference</div></div></div>
+        <div class="col-6 col-md-4 col-lg-2"><div class="text-center"><div style="font-size:2.5rem;margin-bottom:.75rem">🔍</div><div style="font-weight:600;font-size:.9rem;color:var(--text)">Inspectors</div><div style="font-size:.78rem;color:var(--text-muted)">Compliance guidance on the go</div></div></div>
+        <div class="col-6 col-md-4 col-lg-2"><div class="text-center"><div style="font-size:2.5rem;margin-bottom:.75rem">🎓</div><div style="font-weight:600;font-size:.9rem;color:var(--text)">Students</div><div style="font-size:.78rem;color:var(--text-muted)">Study OHS topics interactively</div></div></div>
+        <div class="col-6 col-md-4 col-lg-2"><div class="text-center"><div style="font-size:2.5rem;margin-bottom:.75rem">🌐</div><div style="font-weight:600;font-size:.9rem;color:var(--text)">Public</div><div style="font-size:.78rem;color:var(--text-muted)">Learn workplace safety basics</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section-alt">
+    <div class="container text-center">
+      <div style="max-width:560px;margin:auto">
+        <div style="font-size:3rem;margin-bottom:1rem">🛡️</div>
+        <h2 class="mb-3">Ready to Make Your Workplace Safer?</h2>
+        <p class="mb-4">Ask your first OHS question right now — no account or sign-up required.</p>
+        <a href="#" class="btn-primary-ohs" style="font-size:1rem;padding:.8rem 2rem" onclick="showPage('chat')">
+          <i class="fa-solid fa-robot"></i> Start Using AI Safety Officer
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <div class="navbar-brand-ohs footer-brand mb-3">
+            <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div><span class="brand-name" style="color:#fff">AI Safety Officer</span><span class="brand-sub">OHS Assistant</span></div>
+          </div>
+          <p style="font-size:.85rem;color:rgba(255,255,255,.5)">An AI-powered OHS assistant providing instant, regulation-referenced workplace safety guidance.</p>
+        </div>
+        <div class="col-6 col-lg-2"><h6>Tools</h6><ul class="footer-links"><li><a href="#" onclick="showPage('chat')">AI Assistant</a></li><li><a href="#" onclick="showPage('resources')">Knowledge Base</a></li></ul></div>
+        <div class="col-6 col-lg-2"><h6>Pages</h6><ul class="footer-links"><li><a href="#" onclick="showPage('home')">Home</a></li><li><a href="#" onclick="showPage('about')">About</a></li><li><a href="#" onclick="showPage('contact')">Contact</a></li></ul></div>
+        <div class="col-6 col-lg-2"><h6>Legal</h6><ul class="footer-links"><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Use</a></li><li><a href="#">Disclaimer</a></li></ul></div>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-bottom">
+        <span>&copy; 2025 AI Safety Officer. For guidance only — not legal advice.</span>
+        <span class="version-badge">v1.0.0</span>
+      </div>
+    </div>
+  </footer>
+</div><!-- /page-home -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: CHAT
+════════════════════════════════════════════════════ -->
+<div id="page-chat" class="page" style="height:calc(100vh - 60px)">
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="chat-layout" style="height:100%">
+
+    <!-- Sidebar -->
+    <aside class="chat-sidebar" id="chat-sidebar">
+      <div class="sidebar-header">
+        <div class="app-name">🛡️ AI Safety Officer</div>
+        <div class="app-sub">OHS Knowledge Assistant</div>
+      </div>
+      <div style="padding:.75rem 1rem">
+        <button class="btn-new-chat" onclick="startNewChat()"><i class="fa-solid fa-plus"></i> New Chat</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Quick Access</div>
+        <div class="sidebar-item" onclick="sendQuery('What PPE is required for welding?')"><i class="fa-solid fa-fire"></i> Welding PPE</div>
+        <div class="sidebar-item" onclick="sendQuery('What are confined space entry requirements?')"><i class="fa-solid fa-circle-dot"></i> Confined Spaces</div>
+        <div class="sidebar-item" onclick="sendQuery('Explain lockout tagout procedure step by step')"><i class="fa-solid fa-lock"></i> Lockout/Tagout</div>
+        <div class="sidebar-item" onclick="sendQuery('How do I conduct a workplace risk assessment?')"><i class="fa-solid fa-clipboard-check"></i> Risk Assessment</div>
+        <div class="sidebar-item" onclick="sendQuery('What fall protection is required when working at heights?')"><i class="fa-solid fa-person-falling-burst"></i> Working at Heights</div>
+        <div class="sidebar-item" onclick="sendQuery('What are employer OHS responsibilities?')"><i class="fa-solid fa-briefcase"></i> Employer Duties</div>
+      </div>
+      <div class="sidebar-section" style="flex:1">
+        <div class="sidebar-label">Recent Chats</div>
+        <div id="chat-history-list"><div class="history-item" style="opacity:.4">No history yet</div></div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-footer-item" onclick="clearHistory()"><i class="fa-solid fa-trash"></i> Clear History</div>
+        <div class="sidebar-footer-item" onclick="clearChat()"><i class="fa-solid fa-rotate"></i> Clear Chat</div>
+        <div class="sidebar-footer-item" onclick="showPage('resources')"><i class="fa-solid fa-book"></i> Knowledge Base</div>
+        <div class="sidebar-footer-item" style="margin-top:.5rem;border-top:1px solid rgba(255,255,255,.08);padding-top:.75rem">
+          <i class="fa-solid fa-circle-info"></i>
+          <span style="font-size:.72rem">Answers are for guidance only.<br>Not legal advice.</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat -->
+    <main class="chat-main">
+      <div class="chat-header">
+        <div class="d-flex align-items-center gap-2">
+          <button class="sidebar-toggle" id="sidebar-toggle"><i class="fa-solid fa-bars"></i></button>
+          <div class="chat-header-info">
+            <h6><i class="fa-solid fa-shield-halved me-2 text-primary"></i>AI Safety Officer</h6>
+            <small><span class="text-success"><i class="fa-solid fa-circle" style="font-size:.5rem"></i></span> Online · Local Knowledge Base Active</small>
+          </div>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <button class="btn-icon" onclick="startNewChat()" title="New chat"><i class="fa-solid fa-plus"></i></button>
+          <div class="dropdown">
+            <button class="btn-icon" data-bs-toggle="dropdown" title="Settings"><i class="fa-solid fa-gear"></i></button>
+            <ul class="dropdown-menu dropdown-menu-end" style="min-width:220px;background:var(--card);border-color:var(--border)">
+              <li><h6 class="dropdown-header" style="color:var(--text-muted);font-size:.78rem">AI Provider</h6></li>
+              <li><a class="dropdown-item" href="#" style="font-size:.85rem;color:var(--text)" onclick="AI_CONFIG.provider='local';alert('Using local knowledge base.')"><i class="fa-solid fa-database me-2"></i>Local Knowledge Base</a></li>
+              <li><a class="dropdown-item" href="#" style="font-size:.85rem;color:var(--text)" onclick="promptAPIKey('openai')"><i class="fa-brands fa-openai me-2"></i>Connect OpenAI</a></li>
+              <li><a class="dropdown-item" href="#" style="font-size:.85rem;color:var(--text)" onclick="promptAPIKey('claude')"><i class="fa-solid fa-robot me-2"></i>Connect Claude</a></li>
+              <li><a class="dropdown-item" href="#" style="font-size:.85rem;color:var(--text)" onclick="promptAPIKey('gemini')"><i class="fa-solid fa-gem me-2"></i>Connect Gemini</a></li>
+              <li><hr class="dropdown-divider" style="border-color:var(--border)"></li>
+              <li><a class="dropdown-item" href="#" onclick="showPage('about')" style="font-size:.85rem;color:var(--text-muted)"><i class="fa-solid fa-circle-info me-2"></i>API Integration Guide</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chat-messages"></div>
+
+      <div class="chat-input-area">
+        <div class="chat-input-box">
+          <textarea id="chat-input" placeholder="Ask about workplace safety, PPE, regulations, risk assessments…" rows="1" aria-label="Type your OHS question"></textarea>
+          <button class="chat-send-btn" id="chat-send-btn" title="Send message"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+        <div class="chat-hints">
+          <span class="chat-hint-text"><kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</span>
+          <span class="chat-disclaimer">AI Safety Officer · For guidance only</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div><!-- /page-chat -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: RESOURCES
+════════════════════════════════════════════════════ -->
+<div id="page-resources" class="page">
+  <div class="page-hero">
+    <div class="container">
+      <div class="d-flex align-items-center gap-2 mb-2" style="font-size:.8rem;color:rgba(255,255,255,.6)">
+        <a href="#" onclick="showPage('home')" style="color:rgba(255,255,255,.6);text-decoration:none">Home</a>
+        <i class="fa-solid fa-chevron-right" style="font-size:.6rem"></i><span>Knowledge Base</span>
+      </div>
+      <h1><i class="fa-solid fa-book-open me-3"></i>OHS Knowledge Base</h1>
+      <p>Browse safety articles, regulations, checklists, and downloadable resources.</p>
+      <div class="search-box mt-3">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input id="kb-search" type="text" placeholder="Search articles, topics, regulations…" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:60px;z-index:100">
+    <div class="container">
+      <ul class="nav" style="gap:.25rem;padding:.5rem 0">
+        <li class="nav-item"><a href="#" class="nav-link-ohs active" onclick="switchKBTab('articles',this)">📚 Articles</a></li>
+        <li class="nav-item"><a href="#" class="nav-link-ohs" onclick="switchKBTab('faqs',this)">❓ FAQ</a></li>
+        <li class="nav-item"><a href="#" class="nav-link-ohs" onclick="switchKBTab('regulations',this)">⚖️ Regulations</a></li>
+        <li class="nav-item"><a href="#" class="nav-link-ohs" onclick="switchKBTab('downloads',this)">📥 Downloads</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container py-4">
+    <!-- Articles -->
+    <div id="tab-articles">
+      <div class="mb-4"><h5 class="mb-3">Browse by Category</h5><div id="category-grid" class="category-grid"><div class="text-muted">Loading…</div></div></div>
+      <div class="mb-3 d-flex align-items-center gap-3 flex-wrap">
+        <div class="filter-chips">
+          <button class="filter-chip active" data-category="all" onclick="filterArticles('all')">All</button>
+          <button class="filter-chip" data-category="ppe" onclick="filterArticles('ppe')">PPE</button>
+          <button class="filter-chip" data-category="heights" onclick="filterArticles('heights')">Heights</button>
+          <button class="filter-chip" data-category="confined" onclick="filterArticles('confined')">Confined Spaces</button>
+          <button class="filter-chip" data-category="lockout" onclick="filterArticles('lockout')">LOTO</button>
+          <button class="filter-chip" data-category="chemical" onclick="filterArticles('chemical')">Chemical</button>
+          <button class="filter-chip" data-category="fire" onclick="filterArticles('fire')">Fire Safety</button>
+          <button class="filter-chip" data-category="electrical" onclick="filterArticles('electrical')">Electrical</button>
+          <button class="filter-chip" data-category="risk" onclick="filterArticles('risk')">Risk Assessment</button>
+        </div>
+      </div>
+      <div class="row" id="article-grid"><div class="col-12 text-center py-4 text-muted">Loading articles…</div></div>
+    </div>
+
+    <!-- FAQs -->
+    <div id="tab-faqs" style="display:none">
+      <div class="row">
+        <div class="col-lg-8">
+          <h5 class="mb-4">Frequently Asked OHS Questions</h5>
+          <div id="faq-container"><div class="text-muted">Loading FAQs…</div></div>
+        </div>
+        <div class="col-lg-4">
+          <div class="feature-card" style="position:sticky;top:130px">
+            <div class="feature-icon blue mb-3"><i class="fa-solid fa-robot"></i></div>
+            <h5>Can't find your answer?</h5>
+            <p>Ask the AI Assistant for instant guidance on any OHS topic, regulation, or safety procedure.</p>
+            <a href="#" class="btn-primary-ohs mt-2" style="width:100%;justify-content:center" onclick="showPage('chat')">
+              <i class="fa-solid fa-comments"></i> Open AI Chat
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Regulations -->
+    <div id="tab-regulations" style="display:none">
+      <h5 class="mb-4">OHS Regulations &amp; Standards Reference</h5>
+      <div class="alert-ohs info mb-4"><i class="fa-solid fa-circle-info"></i><span>These summaries are for reference. Always consult the official regulation text and your local OHS authority for authoritative guidance.</span></div>
+      <div class="row" id="regulations-grid"><div class="col-12 text-muted">Loading…</div></div>
+    </div>
+
+    <!-- Downloads -->
+    <div id="tab-downloads" style="display:none">
+      <h5 class="mb-4">Downloadable OHS Resources</h5>
+      <div class="alert-ohs warning mb-4"><i class="fa-solid fa-triangle-exclamation"></i><span>Downloads are placeholder templates. Use the AI Assistant for immediate guidance.</span></div>
+      <div class="row" id="resources-grid"><div class="col-12 text-muted">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- Article Modal -->
+  <div class="modal fade" id="articleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content" style="background:var(--card);border-color:var(--border)">
+        <div class="modal-header" style="border-color:var(--border)">
+          <h5 class="modal-title" id="article-modal-title" style="font-size:1rem"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="article-modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer mt-5">
+    <div class="container"><div class="footer-divider" style="margin-top:0"></div><div class="footer-bottom"><span>&copy; 2025 AI Safety Officer. For guidance only — not legal advice.</span><span class="version-badge">v1.0.0</span></div></div>
+  </footer>
+</div><!-- /page-resources -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: ABOUT
+════════════════════════════════════════════════════ -->
+<div id="page-about" class="page">
+  <div class="page-hero">
+    <div class="container">
+      <div class="d-flex align-items-center gap-2 mb-2" style="font-size:.8rem;color:rgba(255,255,255,.6)">
+        <a href="#" onclick="showPage('home')" style="color:rgba(255,255,255,.6);text-decoration:none">Home</a>
+        <i class="fa-solid fa-chevron-right" style="font-size:.6rem"></i><span>About</span>
+      </div>
+      <h1><i class="fa-solid fa-circle-info me-3"></i>About AI Safety Officer</h1>
+      <p>The mission, technology, and roadmap behind your OHS AI assistant.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <p class="section-eyebrow">Our Mission</p>
+          <h2>Making Workplace Safety Guidance Accessible to Everyone</h2>
+          <div class="section-divider"></div>
+          <p>Occupational injuries and diseases cost lives, livelihoods, and economies. Yet accurate, timely OHS guidance has historically been locked behind expensive consultants, thick regulation documents, and slow bureaucratic channels.</p>
+          <p>AI Safety Officer was built to change that — to give every employer, worker, safety officer, student, and member of the public instant, plain-language guidance on workplace safety, backed by authoritative regulations and standards.</p>
+          <p>We believe that democratising access to OHS knowledge is a direct investment in saving lives.</p>
+          <div class="d-flex gap-3 mt-4 flex-wrap">
+            <a href="#" class="btn-primary-ohs" onclick="showPage('chat')"><i class="fa-solid fa-robot"></i> Try the AI Assistant</a>
+            <a href="#" class="btn-secondary-ohs" onclick="showPage('contact')"><i class="fa-solid fa-envelope"></i> Get in Touch</a>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="row g-3">
+            <div class="col-6"><div class="feature-card text-center" style="padding:1.5rem 1rem"><div style="font-size:2rem;margin-bottom:.5rem">🌐</div><div style="font-weight:600;font-size:.9rem;color:var(--text)">Multi-Jurisdiction</div><div style="font-size:.78rem;color:var(--text-muted)">Bhutan, OSHA, ILO, ISO 45001, and more</div></div></div>
+            <div class="col-6"><div class="feature-card text-center" style="padding:1.5rem 1rem"><div style="font-size:2rem;margin-bottom:.5rem">🔒</div><div style="font-weight:600;font-size:.9rem;color:var(--text)">Privacy First</div><div style="font-size:.78rem;color:var(--text-muted)">Local-first — no data sent externally by default</div></div></div>
+            <div class="col-6"><div class="feature-card text-center" style="padding:1.5rem 1rem"><div style="font-size:2rem;margin-bottom:.5rem">⚡</div><div style="font-weight:600;font-size:.9rem;color:var(--text)">Instant Answers</div><div style="font-size:.78rem;color:var(--text-muted)">No wait time. No appointment. 24/7.</div></div></div>
+            <div class="col-6"><div class="feature-card text-center" style="padding:1.5rem 1rem"><div style="font-size:2rem;margin-bottom:.5rem">🆓</div><div style="font-weight:600;font-size:.9rem;color:var(--text)">Free to Use</div><div style="font-size:.78rem;color:var(--text-muted)">No account. No paywall. Open knowledge.</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header text-center"><p class="section-eyebrow">Technology</p><h2>How AI Safety Officer Works</h2><div class="section-divider mx-auto"></div></div>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3"><div class="feature-card text-center"><div class="feature-icon blue mx-auto" style="margin-bottom:1rem">1</div><h5>You Ask a Question</h5><p>Type any OHS question in plain language — no special terminology required.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card text-center"><div class="feature-icon green mx-auto" style="margin-bottom:1rem">2</div><h5>Knowledge Search</h5><p>The system searches a structured OHS knowledge base covering regulations, standards, and practical guidance.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card text-center"><div class="feature-icon orange mx-auto" style="margin-bottom:1rem">3</div><h5>AI Synthesis</h5><p>Results are synthesised into a clear, actionable answer with regulatory references and checklists.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feature-card text-center"><div class="feature-icon blue mx-auto" style="margin-bottom:1rem">4</div><h5>You Get Guidance</h5><p>Receive a structured answer with key requirements, checklists, references, and suggested follow-up questions.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="api">
+    <div class="container">
+      <div class="section-header text-center"><p class="section-eyebrow">For Developers</p><h2>AI API Integration</h2><div class="section-divider mx-auto"></div><p>AI Safety Officer is designed for easy connection to live AI models.</p></div>
+      <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon blue"><i class="fa-brands fa-openai"></i></div><h5>OpenAI</h5><p>Connect GPT-4o or GPT-4o-mini.</p><code style="font-size:.78rem;color:var(--primary)">AI_CONFIG.provider = 'openai'</code></div></div>
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon green"><i class="fa-solid fa-robot"></i></div><h5>Anthropic Claude</h5><p>Connect Claude Haiku, Sonnet, or Opus.</p><code style="font-size:.78rem;color:var(--secondary)">AI_CONFIG.provider = 'claude'</code></div></div>
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon orange"><i class="fa-solid fa-gem"></i></div><h5>Google Gemini</h5><p>Use Gemini Flash or Pro for fast responses.</p><code style="font-size:.78rem;color:#92400E">AI_CONFIG.provider = 'gemini'</code></div></div>
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon blue"><i class="fa-solid fa-server"></i></div><h5>Ollama (Local LLM)</h5><p>Run Llama 3, Mistral, or others locally.</p><code style="font-size:.78rem;color:var(--primary)">AI_CONFIG.provider = 'ollama'</code></div></div>
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon green"><i class="fa-solid fa-network-wired"></i></div><h5>OpenRouter</h5><p>Access 100+ AI models via a single API key.</p><code style="font-size:.78rem;color:var(--secondary)">AI_CONFIG.provider = 'openrouter'</code></div></div>
+        <div class="col-md-6 col-lg-4"><div class="feature-card"><div class="feature-icon orange"><i class="fa-solid fa-database"></i></div><h5>Local Knowledge Base</h5><p>Default mode — no API key needed.</p><code style="font-size:.78rem;color:#92400E">AI_CONFIG.provider = 'local'</code></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="roadmap">
+    <div class="container">
+      <div class="section-header text-center"><p class="section-eyebrow">Future Plans</p><h2>Product Roadmap</h2><div class="section-divider mx-auto"></div></div>
+      <div class="row g-3">
+        <div class="col-md-6"><div class="feature-card"><div class="d-flex align-items-center gap-2 mb-2"><span class="badge-ohs green">v1.0 – Current</span></div><h5>Local Knowledge Base</h5><ul style="font-size:.85rem;color:var(--text-muted);padding-left:1.2rem"><li>ChatGPT-style interface</li><li>OHS knowledge base (JSON)</li><li>FAQ, articles, checklists</li><li>Regulation reference library</li><li>Dark mode, responsive design</li><li>Multi-provider AI hooks</li></ul></div></div>
+        <div class="col-md-6"><div class="feature-card"><div class="d-flex align-items-center gap-2 mb-2"><span class="badge-ohs blue">v2.0 – Planned</span></div><h5>Live AI Integration</h5><ul style="font-size:.85rem;color:var(--text-muted);padding-left:1.2rem"><li>Live Claude / GPT-4o integration</li><li>PDF &amp; document ingestion</li><li>Expanded regulation coverage</li><li>Incident report templates</li><li>Multi-language support</li><li>User accounts and saved sessions</li></ul></div></div>
+        <div class="col-md-6"><div class="feature-card"><div class="d-flex align-items-center gap-2 mb-2"><span class="badge-ohs orange">v3.0 – Future</span></div><h5>Enterprise Features</h5><ul style="font-size:.85rem;color:var(--text-muted);padding-left:1.2rem"><li>Custom knowledge base upload</li><li>Workplace inspection management</li><li>Safety committee tools</li><li>Incident tracking &amp; analytics</li><li>API for third-party integration</li><li>Mobile app (iOS / Android)</li></ul></div></div>
+        <div class="col-md-6"><div class="feature-card"><div class="d-flex align-items-center gap-2 mb-2"><span class="badge-ohs orange">v4.0 – Vision</span></div><h5>AI-Powered Compliance</h5><ul style="font-size:.85rem;color:var(--text-muted);padding-left:1.2rem"><li>Automated compliance gap analysis</li><li>AI-generated risk assessments</li><li>Real-time hazard alerts</li><li>Regulatory update notifications</li><li>OHS training module</li></ul></div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-divider" style="margin-top:0"></div><div class="footer-bottom"><span>&copy; 2025 AI Safety Officer. For guidance only — not legal advice.</span><span class="version-badge">v1.0.0</span></div></div>
+  </footer>
+</div><!-- /page-about -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: CONTACT
+════════════════════════════════════════════════════ -->
+<div id="page-contact" class="page">
+  <div class="page-hero">
+    <div class="container">
+      <div class="d-flex align-items-center gap-2 mb-2" style="font-size:.8rem;color:rgba(255,255,255,.6)">
+        <a href="#" onclick="showPage('home')" style="color:rgba(255,255,255,.6);text-decoration:none">Home</a>
+        <i class="fa-solid fa-chevron-right" style="font-size:.6rem"></i><span>Contact</span>
+      </div>
+      <h1><i class="fa-solid fa-envelope me-3"></i>Contact Us</h1>
+      <p>Have a question, found an error, or want to contribute? We'd love to hear from you.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="row g-5">
+        <div class="col-lg-5">
+          <h4 class="mb-4">Get in Touch</h4>
+          <div class="alert-ohs info mb-4"><i class="fa-solid fa-robot"></i><span>For OHS questions, the fastest way to get help is through our <a href="#" onclick="showPage('chat')" style="color:inherit;font-weight:600;text-decoration:underline">AI Assistant</a> — available 24/7 with instant answers.</span></div>
+          <div class="contact-info-item"><div class="contact-info-icon"><i class="fa-solid fa-building-columns"></i></div><div><div style="font-weight:600;font-size:.9rem;margin-bottom:.25rem">Organisation</div><div style="font-size:.85rem;color:var(--text-muted)">Department of Labour &amp; Human Resources<br>[Update with actual department]</div></div></div>
+          <div class="contact-info-item"><div class="contact-info-icon"><i class="fa-solid fa-envelope"></i></div><div><div style="font-weight:600;font-size:.9rem;margin-bottom:.25rem">Email</div><div style="font-size:.85rem;color:var(--text-muted)">ohs@example.bt<br>[Update with actual email]</div></div></div>
+          <div class="contact-info-item"><div class="contact-info-icon"><i class="fa-solid fa-phone"></i></div><div><div style="font-weight:600;font-size:.9rem;margin-bottom:.25rem">Phone</div><div style="font-size:.85rem;color:var(--text-muted)">+975-XX-XXXXXX<br>[Update with actual phone]</div></div></div>
+          <div class="contact-info-item"><div class="contact-info-icon"><i class="fa-solid fa-location-dot"></i></div><div><div style="font-weight:600;font-size:.9rem;margin-bottom:.25rem">Address</div><div style="font-size:.85rem;color:var(--text-muted)">Thimphu, Bhutan<br>[Update with actual address]</div></div></div>
+        </div>
+        <div class="col-lg-7">
+          <div class="contact-card">
+            <h4 class="mb-4">Send us a Message</h4>
+            <form id="contact-form">
+              <div class="row g-3">
+                <div class="col-md-6"><label class="form-label-ohs">Full Name *</label><input type="text" class="form-control-ohs" placeholder="Your full name" required></div>
+                <div class="col-md-6"><label class="form-label-ohs">Email Address *</label><input type="email" class="form-control-ohs" placeholder="your@email.com" required></div>
+                <div class="col-md-6"><label class="form-label-ohs">Organisation</label><input type="text" class="form-control-ohs" placeholder="Your company or organisation"></div>
+                <div class="col-md-6"><label class="form-label-ohs">Your Role</label>
+                  <select class="form-control-ohs"><option value="">Select your role…</option><option>Employer / Manager</option><option>Safety Officer / HSE Professional</option><option>Worker / Employee</option><option>Labour Inspector</option><option>Student / Researcher</option><option>Developer / Technical</option><option>General Public</option></select>
+                </div>
+                <div class="col-12"><label class="form-label-ohs">Subject *</label>
+                  <select class="form-control-ohs" required><option value="">Select enquiry type…</option><option>General OHS Question</option><option>Report an Error or Inaccuracy</option><option>Suggest a Topic or Feature</option><option>Technical Support</option><option>Partnership or Collaboration</option><option>Other</option></select>
+                </div>
+                <div class="col-12"><label class="form-label-ohs">Message *</label><textarea class="form-control-ohs" rows="5" placeholder="Describe your question, feedback, or issue…" required style="resize:vertical"></textarea></div>
+                <div class="col-12"><div class="alert-ohs warning" style="font-size:.8rem"><i class="fa-solid fa-triangle-exclamation"></i><span><strong>Important:</strong> Do not include confidential personal or medical information. For urgent safety emergencies, contact your local emergency services immediately.</span></div></div>
+                <div class="col-12"><button type="submit" class="btn-primary-ohs" style="width:100%;justify-content:center;padding:.75rem"><i class="fa-solid fa-paper-plane"></i> Send Message</button></div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header text-center"><p class="section-eyebrow">Quick Help</p><h2>Looking for an Answer?</h2><div class="section-divider mx-auto"></div></div>
+      <div class="row g-4">
+        <div class="col-md-4"><div class="feature-card text-center"><div class="feature-icon blue mx-auto" style="margin-bottom:1rem"><i class="fa-solid fa-robot"></i></div><h5>Ask the AI</h5><p>Get instant OHS guidance from our AI assistant — available 24/7, no wait time.</p><a href="#" class="btn-primary-ohs mt-2" onclick="showPage('chat')">Open AI Assistant</a></div></div>
+        <div class="col-md-4"><div class="feature-card text-center"><div class="feature-icon green mx-auto" style="margin-bottom:1rem"><i class="fa-solid fa-book-open"></i></div><h5>Browse Knowledge Base</h5><p>Search our OHS articles, checklists, and regulation summaries.</p><a href="#" class="btn-secondary-ohs mt-2" onclick="showPage('resources')">Browse Articles</a></div></div>
+        <div class="col-md-4"><div class="feature-card text-center"><div class="feature-icon orange mx-auto" style="margin-bottom:1rem"><i class="fa-brands fa-github"></i></div><h5>GitHub Issues</h5><p>Report bugs or request features on our open-source GitHub repository.</p><a href="https://github.com" target="_blank" class="btn-secondary-ohs mt-2">Open GitHub</a></div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-divider" style="margin-top:0"></div><div class="footer-bottom"><span>&copy; 2025 AI Safety Officer. For guidance only — not legal advice.</span><span class="version-badge">v1.0.0</span></div></div>
+  </footer>
+</div><!-- /page-contact -->
+
+
+<!-- Scroll to top -->
+<button id="scroll-top" style="position:fixed;bottom:1.5rem;right:1.5rem;width:42px;height:42px;background:var(--primary);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:.9rem;box-shadow:var(--shadow-lg);opacity:0;transition:opacity .3s;z-index:500" title="Back to top"><i class="fa-solid fa-arrow-up"></i></button>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+/* ── EMBEDDED JSON DATA ──────────────────────────── */
+const EMBEDDED_OHS = {"version":"1.0.0","lastUpdated":"2025-01-01","categories":[{"id":"ppe","name":"Personal Protective Equipment","icon":"\ud83e\uddba","count":8},{"id":"construction","name":"Construction Safety","icon":"\ud83c\udfd7\ufe0f","count":12},{"id":"electrical","name":"Electrical Safety","icon":"\u26a1","count":7},{"id":"chemical","name":"Chemical Safety","icon":"\u2697\ufe0f","count":9},{"id":"fire","name":"Fire Safety","icon":"\ud83d\udd25","count":6},{"id":"confined","name":"Confined Spaces","icon":"\ud83d\udd73\ufe0f","count":5},{"id":"heights","name":"Working at Heights","icon":"\ud83e\ude9c","count":7},{"id":"machine","name":"Machine Safety","icon":"\u2699\ufe0f","count":8},{"id":"lockout","name":"Lockout/Tagout","icon":"\ud83d\udd12","count":4},{"id":"ergonomics","name":"Ergonomics","icon":"\ud83e\ude91","count":5},{"id":"risk","name":"Risk Assessment","icon":"\ud83d\udccb","count":6},{"id":"emergency","name":"Emergency Response","icon":"\ud83d\udea8","count":5}],"articles":[{"id":"ppe-001","category":"ppe","title":"PPE Requirements for Welding Operations","summary":"Comprehensive guide to personal protective equipment required for all welding activities.","tags":["welding","ppe","eye protection","respiratory"],"keyRequirements":["Welding helmet with appropriate shade number (shade 10\u201314 for arc welding)","Flame-resistant gloves and protective clothing","Respiratory protection for fumes (N95 minimum, powered air-purifying respirator for heavy exposure)","Steel-toed boots and leather apron","Hearing protection when noise exceeds 85 dB","Screen or curtains to protect others from arc flash"],"checklist":[{"item":"Welding helmet with correct filter shade","checked":false},{"item":"Flame-resistant gloves (leather preferred)","checked":false},{"item":"FR coveralls or welding jacket","checked":false},{"item":"Safety boots (steel-toe, heat-resistant sole)","checked":false},{"item":"Respiratory protection inspected and fitted","checked":false},{"item":"Welding screen in place","checked":false},{"item":"Ventilation adequate or LEV in use","checked":false}],"references":["ISO 45001:2018 \u2013 Section 8.1","OSHA 1910.252 \u2013 Welding, Cutting, Brazing","ANSI Z49.1 \u2013 Safety in Welding and Cutting","Bhutan OHS Regulation 2012 \u2013 Chapter 5"]},{"id":"heights-001","category":"heights","title":"Working at Heights \u2013 Fall Protection Requirements","summary":"Legal and practical requirements for fall protection when working above ground level.","tags":["heights","fall protection","harness","scaffolding","ladder"],"keyRequirements":["Fall protection required when working at or above 1.8m (6 feet) in general industry","Full body harness with shock-absorbing lanyard required for unprotected edges","Anchor points must support minimum 5,000 lbs (22.2 kN) per worker","Scaffold guardrails at 0.9m and 1.1m height with mid-rail and toe board","Ladder must extend 0.9m above the landing surface","Rescue plan must be in place before work begins"],"checklist":[{"item":"Fall hazards identified and documented","checked":false},{"item":"Full body harness inspected before use","checked":false},{"item":"Anchor points verified (5,000 lb rated)","checked":false},{"item":"Guardrails installed at correct height","checked":false},{"item":"Workers trained in fall protection","checked":false},{"item":"Rescue plan prepared and communicated","checked":false},{"item":"Work permit obtained if required","checked":false}],"references":["OSHA 1926.502 \u2013 Fall Protection Systems","ISO 45001:2018 \u2013 Section 8.1.3","ILO C167 \u2013 Construction Safety Convention"]},{"id":"confined-001","category":"confined","title":"Confined Space Entry Procedures","summary":"Requirements for safely entering and working in confined spaces.","tags":["confined space","entry permit","atmospheric testing","rescue"],"keyRequirements":["Identify and classify all confined spaces (permit-required vs non-permit)","Atmospheric testing required: oxygen (19.5%\u201323.5%), flammable gas (<10% LEL), toxic substances","Permit-to-enter system with authorised entrant, attendant, and entry supervisor","Ventilation (forced or natural) must be established before entry","Continuous atmospheric monitoring during occupancy","Non-entry rescue preferred; retrieval system must be in place","Emergency services notified and rescue plan documented"],"checklist":[{"item":"Space classified and hazards identified","checked":false},{"item":"Entry permit issued and signed","checked":false},{"item":"Atmospheric testing completed (O2, LEL, CO, H2S)","checked":false},{"item":"Ventilation established and verified","checked":false},{"item":"Attendant stationed outside at all times","checked":false},{"item":"Retrieval/rescue equipment at entrance","checked":false},{"item":"All entrants briefed on emergency procedures","checked":false}],"references":["OSHA 1910.146 \u2013 Permit-Required Confined Spaces","ISO 45001:2018","Bhutan OHS Regulation 2012"]},{"id":"lockout-001","category":"lockout","title":"Lockout/Tagout (LOTO) Procedures","summary":"Energy control procedures to protect workers from hazardous energy during maintenance.","tags":["lockout","tagout","energy control","maintenance","LOTO"],"keyRequirements":["Written LOTO programme required covering all types of energy: electrical, hydraulic, pneumatic, thermal, gravitational, chemical","Each piece of equipment must have a specific energy control procedure","Only authorised employees may perform lockout","Individually keyed locks \u2014 one lock per employee","Verification of zero energy state required before work begins","Notification to affected employees before and after lockout"],"checklist":[{"item":"LOTO programme documented and approved","checked":false},{"item":"All energy sources identified for equipment","checked":false},{"item":"Equipment shut down following established procedure","checked":false},{"item":"All energy sources isolated (disconnected/blocked/bled)","checked":false},{"item":"Lockout devices applied to each energy isolation point","checked":false},{"item":"Energy release verified (try to start)","checked":false},{"item":"Work completed; locks removed by each worker personally","checked":false}],"references":["OSHA 1910.147 \u2013 Control of Hazardous Energy","ANSI/ASSE Z244.1","ISO 45001:2018"]},{"id":"chemical-001","category":"chemical","title":"Chemical Storage and Handling Requirements","summary":"Safe storage, labelling, and handling of hazardous chemicals in the workplace.","tags":["chemical","storage","SDS","GHS","hazmat","segregation"],"keyRequirements":["Safety Data Sheets (SDS) required for all hazardous chemicals \u2014 accessible to workers","GHS-compliant labels on all containers (including decanted secondary containers)","Incompatible chemicals must be segregated (acids from bases, oxidisers from flammables)","Flammable liquids stored in approved flammable storage cabinets","Temperature controls where required; no storage near heat sources","Adequate ventilation in storage areas","Spill containment (bunding) where required","Chemical register maintained and current"],"checklist":[{"item":"Chemical register up to date","checked":false},{"item":"SDS available for all chemicals (accessible to workers)","checked":false},{"item":"All containers properly labelled (GHS)","checked":false},{"item":"Incompatibles segregated","checked":false},{"item":"Flammables in approved cabinets","checked":false},{"item":"Ventilation adequate","checked":false},{"item":"Spill kits available and stocked","checked":false},{"item":"Workers trained in chemical handling","checked":false}],"references":["GHS Rev.9 \u2013 UN Globally Harmonised System","OSHA 1910.1200 \u2013 Hazard Communication","ISO 45001:2018 \u2013 Section 8.1.4","WHO Chemical Safety Guidelines"]},{"id":"fire-001","category":"fire","title":"Fire Extinguisher Requirements and Inspection","summary":"Selection, placement, maintenance, and inspection requirements for portable fire extinguishers.","tags":["fire","extinguisher","inspection","emergency"],"keyRequirements":["Fire extinguishers selected to match fire classes present (A, B, C, D, K)","Maximum travel distance to extinguisher: 23m for Class A; 15m for Class B","Extinguishers mounted, located, and clearly identified","Monthly visual inspections required (check seal, gauge, condition)","Annual maintenance inspection by trained technician","Hydrostatic testing every 5\u201312 years depending on extinguisher type","Workers trained in PASS technique (Pull, Aim, Squeeze, Sweep)"],"checklist":[{"item":"Extinguisher type matches fire class in area","checked":false},{"item":"Mounted at correct height and clearly visible","checked":false},{"item":"Pin and tamper seal intact","checked":false},{"item":"Gauge in operable range (green zone)","checked":false},{"item":"No physical damage or corrosion","checked":false},{"item":"Monthly inspection tag signed and current","checked":false},{"item":"Annual service tag current","checked":false}],"references":["NFPA 10 \u2013 Standard for Portable Fire Extinguishers","OSHA 1910.157 \u2013 Portable Fire Extinguishers","ISO 11602 \u2013 Fire Fighting \u2013 Portable Extinguishers"]},{"id":"risk-001","category":"risk","title":"How to Conduct a Risk Assessment","summary":"Step-by-step methodology for identifying hazards and assessing workplace risks.","tags":["risk assessment","hazard identification","control measures","hierarchy of controls"],"keyRequirements":["Identify all hazards (physical, chemical, biological, ergonomic, psychosocial)","Determine who might be harmed and how","Evaluate the risk: Likelihood \u00d7 Severity = Risk Rating","Apply the Hierarchy of Controls: Eliminate > Substitute > Engineering > Administrative > PPE","Document findings and implement controls","Review and update whenever work changes or after incidents"],"checklist":[{"item":"All tasks and activities listed","checked":false},{"item":"Hazards identified for each task","checked":false},{"item":"Existing controls noted","checked":false},{"item":"Risk rating calculated (L \u00d7 S)","checked":false},{"item":"Additional controls identified using hierarchy","checked":false},{"item":"Residual risk acceptable (low/medium)","checked":false},{"item":"Workers consulted and trained","checked":false},{"item":"Review date set","checked":false}],"references":["ISO 45001:2018 \u2013 Sections 6.1, 8.1","ILO-OSH 2001 Guidelines","Bhutan OHS Regulation 2012 \u2013 Chapter 3"]},{"id":"electrical-001","category":"electrical","title":"Electrical Safety Requirements","summary":"Key requirements for safe work on or near electrical systems and equipment.","tags":["electrical","arc flash","lockout","grounding","PPE"],"keyRequirements":["Only qualified electricians may work on live electrical systems where energised work is unavoidable","De-energise and lockout/tagout before electrical work whenever possible","Arc flash hazard analysis required; arc flash boundary and PPE category determined","Ground fault circuit interrupters (GFCI) required in wet/damp locations and outdoor use","All electrical equipment properly grounded or double-insulated","Overhead power lines: minimum 3m clearance for voltages up to 50kV","Electrical panels accessible, unobstructed, labelled"],"checklist":[{"item":"Equipment de-energised and LOTO applied","checked":false},{"item":"Absence of voltage verified with calibrated meter","checked":false},{"item":"Arc flash PPE worn if live work unavoidable","checked":false},{"item":"GFCI protection in place","checked":false},{"item":"Insulated tools used","checked":false},{"item":"Overhead line clearances maintained","checked":false},{"item":"Second person (safety observer) present for live work","checked":false}],"references":["NFPA 70E \u2013 Electrical Safety in the Workplace","OSHA 1910.333 \u2013 Electrical Safety Work Practices","IEC 60364 \u2013 Low-voltage Electrical Installations"]}]};
+const EMBEDDED_FAQ = {"version":"1.0.0","faqs":[{"id":"faq-001","question":"Is a safety harness required when working at heights?","answer":"Yes. Fall protection, including a full-body harness and shock-absorbing lanyard, is required whenever a worker is exposed to a fall of 1.8 metres (6 feet) or more in general industry, or 3 metres in construction where collective protection (guardrails, safety nets) is not practicable. The harness must be inspected before each use, and anchor points must be rated to at least 5,000 lbs (22.2 kN). A rescue plan must be in place before work begins.","category":"heights","tags":["harness","heights","fall protection"],"followUp":["What are anchor point requirements?","How do I inspect a harness?","What is a rescue plan for heights work?"]},{"id":"faq-002","question":"What PPE is required for welding?","answer":"Welding requires: (1) Welding helmet with correct filter shade (shade 10\u201314 for arc welding); (2) Flame-resistant gloves and clothing; (3) Safety boots with steel toes and heat-resistant soles; (4) Respiratory protection (at minimum N95 for metal fume, powered air-purifying respirator for heavy or enclosed-space welding); (5) Hearing protection if noise exceeds 85 dB; (6) Welding screens or curtains to protect nearby workers from arc flash and UV radiation.","category":"ppe","tags":["welding","PPE","respiratory","eye protection"],"followUp":["What ventilation is needed for welding?","How do I choose the correct filter shade?","What are welding fume health risks?"]},{"id":"faq-003","question":"What is a confined space?","answer":"A confined space is an enclosed or partially enclosed space that: (1) is large enough for a worker to enter and perform work; (2) has limited means for entry or exit; and (3) is not designed for continuous occupancy. Examples include tanks, silos, vaults, pits, manholes, tunnels, pipes, and vessels. A 'permit-required confined space' has one or more additional hazards: a potentially hazardous atmosphere, material that could engulf an entrant, an internal configuration that could trap a worker, or any other serious safety or health hazard.","category":"confined","tags":["confined space","permit","atmosphere"],"followUp":["What atmospheric tests are needed before entry?","Who can be an attendant for confined space entry?","What rescue equipment is required?"]},{"id":"faq-004","question":"How should hazardous chemicals be stored?","answer":"Key chemical storage requirements: (1) Safety Data Sheets (SDS) must be accessible to workers for all hazardous chemicals; (2) All containers must be labelled with GHS-compliant labels, including secondary containers; (3) Incompatible chemicals must be segregated \u2014 acids from bases, oxidisers from flammables, poisons from food; (4) Flammable liquids must be stored in approved flammable storage cabinets away from ignition sources; (5) Storage areas must have adequate ventilation; (6) Spill containment (bunding) required for liquid chemicals; (7) A chemical register must be maintained.","category":"chemical","tags":["chemical storage","SDS","GHS","segregation"],"followUp":["What information must be on a GHS label?","How do I dispose of hazardous chemicals?","What is a Safety Data Sheet?"]},{"id":"faq-005","question":"What is lockout/tagout (LOTO)?","answer":"Lockout/Tagout (LOTO) is an energy control procedure that protects workers from the unexpected startup of machinery or release of stored energy during maintenance or servicing. The procedure involves: (1) Notifying affected workers; (2) Shutting down the equipment following its specific procedure; (3) Isolating all energy sources (electrical, hydraulic, pneumatic, thermal, gravitational, chemical); (4) Applying lockout devices (individual locks \u2014 one per worker) to each isolation point; (5) Releasing or restraining stored energy; (6) Verifying the equipment is de-energised before work begins.","category":"lockout","tags":["LOTO","lockout","energy control","maintenance"],"followUp":["What types of energy require lockout?","Can tagout be used instead of lockout?","What training is required for LOTO?"]},{"id":"faq-006","question":"What are the responsibilities of employers under OHS law?","answer":"Employers have a general duty to provide a safe and healthy workplace. Specific responsibilities typically include: (1) Identify and assess all workplace hazards; (2) Implement controls using the hierarchy of controls; (3) Provide adequate information, instruction, training, and supervision; (4) Consult with workers on safety matters; (5) Provide appropriate PPE at no cost to workers; (6) Maintain plant, equipment, and systems of work; (7) Report notifiable incidents to the relevant authority; (8) Maintain OHS records; (9) Establish a safety committee where required; (10) Review and improve the safety management system.","category":"risk","tags":["employer duties","OHS law","duty of care"],"followUp":["What are worker OHS responsibilities?","What is a notifiable incident?","What is the penalty for OHS breaches?"]},{"id":"faq-007","question":"How often should fire extinguishers be inspected?","answer":"Fire extinguishers require: (1) Monthly visual inspection \u2014 check that it is in its designated place, unobstructed, the pin and tamper seal are intact, the pressure gauge shows in the operable (green) range, and there is no obvious damage or corrosion; (2) Annual maintenance inspection by a trained and certified technician who tests, lubricates, and recharges if necessary; (3) Hydrostatic pressure testing every 5 years (CO2) or 12 years (dry chemical/water) depending on extinguisher type. All inspections must be documented on the inspection tag attached to the extinguisher.","category":"fire","tags":["fire extinguisher","inspection","maintenance"],"followUp":["What type of extinguisher do I need?","How do I use a fire extinguisher (PASS)?","What is a fire warden's role?"]},{"id":"faq-008","question":"What is a near miss?","answer":"A near miss (also called a near hit or close call) is an unplanned event that did not result in injury, illness, or property damage but had the potential to do so. Examples: a tool falling from a scaffold (no one below), a worker slipping but regaining balance, a chemical spill that was quickly contained. Near misses must be reported and investigated because they reveal system failures before someone is harmed. Studies show there are approximately 600 near misses for every serious injury (Heinrich's Triangle / Bird's Triangle). An effective near-miss reporting culture is a strong indicator of a mature safety management system.","category":"risk","tags":["near miss","incident reporting","safety culture"],"followUp":["How do I report a near miss?","What is an incident investigation?","What is Heinrich's Triangle?"]},{"id":"faq-009","question":"Can workers refuse unsafe work?","answer":"Yes. In most OHS jurisdictions, workers have the legal right to refuse work they reasonably believe is imminently dangerous or likely to cause serious injury, illness, or death. The refusal process typically involves: (1) Informing the supervisor of the concern; (2) An investigation by the supervisor and worker; (3) If not resolved, a safety representative or inspector is called; (4) The worker cannot be dismissed, disciplined, or penalised for a good-faith refusal. Employers must investigate and address the hazard before work resumes. Workers should document their concerns in writing.","category":"risk","tags":["worker rights","unsafe work","refusal"],"followUp":["What are worker OHS rights?","How do I report an OHS violation?","Can an employer replace a worker who refuses unsafe work?"]},{"id":"faq-010","question":"How do I conduct a risk assessment?","answer":"A risk assessment involves five steps: (1) Identify hazards \u2014 walk through the workplace, review tasks, consult workers, and examine incident records; (2) Determine who might be harmed and how \u2014 consider employees, contractors, visitors, and the public; (3) Evaluate the risk \u2014 rate likelihood and severity (Low, Medium, High, Extreme); (4) Control the risk \u2014 apply the Hierarchy of Controls: Eliminate > Substitute > Engineering controls > Administrative controls > PPE; (5) Record, implement, and review \u2014 document findings, assign actions, set a review date, and update when work changes or after incidents. Worker consultation is required throughout the process.","category":"risk","tags":["risk assessment","hazard identification","hierarchy of controls"],"followUp":["What is the hierarchy of controls?","How often must risk assessments be reviewed?","What forms or templates should I use?"]}]};
+const EMBEDDED_LABOUR = {"version":"1.0.0","regulations":[{"id":"bhutan-ohs-2012","name":"Bhutan Occupational Health & Safety Regulation 2012","jurisdiction":"Bhutan","year":2012,"summary":"The primary OHS regulation in Bhutan establishing duties of employers, workers, and the government to ensure safe and healthy workplaces.","keyChapters":["Chapter 1: General Provisions","Chapter 2: Duties of Employers","Chapter 3: Duties of Workers","Chapter 4: Safety Committees","Chapter 5: PPE Requirements","Chapter 6: Machinery and Equipment Safety","Chapter 7: Hazardous Substances","Chapter 8: Incident Reporting","Chapter 9: Enforcement and Penalties"],"type":"Regulation","icon":"\ud83d\udcdc"},{"id":"bhutan-labour-act-2007","name":"Bhutan Labour and Employment Act 2007","jurisdiction":"Bhutan","year":2007,"summary":"The overarching labour law governing employment relations, worker rights, working hours, leave entitlements, termination, and occupational safety obligations.","keyChapters":["Employment Contracts","Working Hours and Rest Periods","Leave Entitlements","Wages and Benefits","Occupational Safety","Termination","Labour Disputes"],"type":"Act","icon":"\u2696\ufe0f"},{"id":"iso-45001","name":"ISO 45001:2018 \u2013 Occupational Health and Safety Management Systems","jurisdiction":"International","year":2018,"summary":"International standard specifying requirements for an OH&S management system, enabling organisations to provide safe and healthy workplaces by preventing work-related injury and ill health.","keyChapters":["Clause 4: Context of the organisation","Clause 5: Leadership and worker participation","Clause 6: Planning (hazard identification, risk assessment)","Clause 7: Support (resources, competence, communication)","Clause 8: Operation (planning and control)","Clause 9: Performance evaluation (auditing)","Clause 10: Improvement (incident investigation, corrective action)"],"type":"Standard","icon":"\ud83c\udfc6"},{"id":"osha-general-industry","name":"OSHA General Industry Standards (29 CFR 1910)","jurisdiction":"USA (Reference)","year":1970,"summary":"US Occupational Safety and Health Administration standards covering all general industry workplaces. Widely referenced internationally for technical safety requirements.","keyParts":["1910.146 \u2013 Confined Spaces","1910.147 \u2013 Lockout/Tagout","1910.157 \u2013 Fire Extinguishers","1910.252 \u2013 Welding Safety","1910.333 \u2013 Electrical Safety","1910.1200 \u2013 Hazard Communication (GHS)"],"type":"Standard","icon":"\ud83c\uddfa\ud83c\uddf8"},{"id":"ilo-c155","name":"ILO Convention C155 \u2013 Occupational Safety and Health Convention 1981","jurisdiction":"International","year":1981,"summary":"ILO Convention requiring ratifying states to formulate, implement, and periodically review a coherent national policy on occupational safety and health.","keyArticles":["Article 3: Definitions","Article 4: National OHS Policy","Article 5: Spheres of action","Article 16: Employer duties","Article 19: Worker rights and duties","Article 20: Cooperation between employers and workers"],"type":"Convention","icon":"\ud83c\udf10"},{"id":"ilo-c167","name":"ILO Convention C167 \u2013 Construction Safety Convention 1988","jurisdiction":"International","year":1988,"summary":"ILO Convention covering safety and health requirements in construction, including scaffolding, working at heights, excavations, and site welfare facilities.","type":"Convention","icon":"\ud83c\udfd7\ufe0f"}],"resources":[{"id":"res-001","title":"Risk Assessment Template","type":"Template","format":"XLSX","description":"Standard 5\u00d75 risk matrix with likelihood and severity ratings, control measures, and review fields.","icon":"\ud83d\udcca","category":"forms"},{"id":"res-002","title":"Confined Space Entry Permit","type":"Form","format":"PDF","description":"Permit-to-enter form covering atmospheric testing, entrants, attendants, equipment, and emergency procedures.","icon":"\ud83d\udccb","category":"forms"},{"id":"res-003","title":"Incident Investigation Report","type":"Form","format":"DOCX","description":"Comprehensive incident investigation template covering immediate cause, root cause analysis, and corrective actions.","icon":"\ud83d\udd0d","category":"forms"},{"id":"res-004","title":"Safety Induction Checklist","type":"Checklist","format":"PDF","description":"New worker induction checklist covering site rules, emergency procedures, hazards, and PPE requirements.","icon":"\u2705","category":"checklists"},{"id":"res-005","title":"JSA \u2013 Job Safety Analysis Template","type":"Template","format":"XLSX","description":"Step-by-step JSA template to break jobs into tasks, identify hazards, and document control measures.","icon":"\ud83d\udd27","category":"forms"},{"id":"res-006","title":"Monthly Safety Inspection Checklist","type":"Checklist","format":"PDF","description":"General workplace inspection checklist covering housekeeping, equipment, electrical, fire safety, and emergency equipment.","icon":"\ud83d\udd0e","category":"checklists"},{"id":"res-007","title":"Safety Committee Meeting Minutes Template","type":"Template","format":"DOCX","description":"Structured meeting minutes template for OHS committee meetings including agenda, action items, and follow-up.","icon":"\ud83e\udd1d","category":"templates"},{"id":"res-008","title":"PPE Selection Guide","type":"Guide","format":"PDF","description":"Guide to selecting appropriate PPE by hazard type, covering head, eye, hearing, respiratory, hand, and foot protection.","icon":"\ud83e\uddba","category":"guidelines"}]};
+</script>
+
+<script>
+/* ── SINGLE-PAGE ROUTER ──────────────────────────── */
+const PAGES = ['home','chat','resources','about','contact'];
+let currentPage = 'home';
+
+function showPage(name) {
+  // Save/restore chat scroll
+  PAGES.forEach(p => {
+    document.getElementById('page-' + p).classList.remove('active');
+  });
+  document.querySelectorAll('.nav-link-ohs').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+
+  // Mark nav active
+  document.querySelectorAll('.nav-link-ohs').forEach(l => {
+    const txt = l.textContent.trim().toLowerCase();
+    if ((name === 'home' && (txt === 'home')) ||
+        (name === 'chat' && txt.includes('assistant')) ||
+        (name === 'resources' && txt.includes('knowledge')) ||
+        (name === 'about' && txt === 'about') ||
+        (name === 'contact' && txt === 'contact')) {
+      l.classList.add('active');
+    }
+  });
+
+  currentPage = name;
+  window.scrollTo(0, 0);
+
+  // Page-specific init
+  if (name === 'chat') {
+    setTimeout(() => setupTextarea(), 50);
+    setTimeout(() => { if (getMessagesEl() && !getMessagesEl().children.length) showWelcomeScreen(); }, 100);
+  }
+  if (name === 'resources') {
+    setTimeout(() => { renderKnowledgeBase(); renderResources(); renderFAQs(); }, 50);
+  }
+
+  // Close mobile nav
+  const mobileNav = document.getElementById('mobile-nav');
+  if (mobileNav) mobileNav.classList.remove('show');
+  return false;
+}
+
+// KB tab switcher
+function switchKBTab(tab, el) {
+  document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display = 'none');
+  document.getElementById('tab-' + tab).style.display = '';
+  document.querySelectorAll('#page-resources .nav-link-ohs').forEach(l => l.classList.remove('active'));
+  if (el) el.classList.add('active');
+  return false;
+}
+</script>
+
+<script>
+/* ── KNOWLEDGE JS (patched for embedded data) ─── */
+/**
+ * knowledge.js – OHS Knowledge Base Engine
+ * Searches local JSON data and returns structured answers.
+ * Designed to be replaced or augmented by a live AI API.
+ */
+
+const OHSKnowledge = (() => {
+
+  // ── In-memory cache of loaded data ──────────────────
+  let _ohs     = null;
+  let _faq     = null;
+  let _labour  = null;
+  let _loaded  = false;
+
+  // ── Load all JSON files ──────────────────────────────
+  async function loadData() {
+    if (_loaded) return;
+    _ohs    = EMBEDDED_OHS;
+    _faq    = EMBEDDED_FAQ;
+    _labour = EMBEDDED_LABOUR;
+    _loaded = true;
+  }
+
+  // ── Tokenise a string for matching ──────────────────
+  function tokenise(str = '') {
+    return str.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter(t => t.length > 2);
+  }
+
+  // ── Score a document against a query ────────────────
+  function score(doc, queryTokens) {
+    const haystack = [
+      doc.title || '', doc.question || '', doc.summary || '',
+      doc.answer || '', (doc.tags || []).join(' '),
+      (doc.keyRequirements || []).join(' '),
+      doc.name || ''
+    ].join(' ').toLowerCase();
+
+    let s = 0;
+    for (const t of queryTokens) {
+      if (haystack.includes(t)) s++;
+      // bonus for title/question match
+      if ((doc.title || doc.question || '').toLowerCase().includes(t)) s += 2;
+    }
+    return s;
+  }
+
+  // ── Search across all data sources ──────────────────
+  async function search(query) {
+    await loadData();
+    const tokens = tokenise(query);
+    if (!tokens.length) return null;
+
+    const results = [];
+
+    // Search FAQs
+    for (const f of _faq.faqs) {
+      const s = score(f, tokens);
+      if (s > 0) results.push({ type: 'faq', data: f, score: s });
+    }
+
+    // Search OHS articles
+    for (const a of _ohs.articles) {
+      const s = score(a, tokens);
+      if (s > 0) results.push({ type: 'article', data: a, score: s });
+    }
+
+    // Search regulations
+    for (const r of _labour.regulations) {
+      const s = score(r, tokens);
+      if (s > 0) results.push({ type: 'regulation', data: r, score: s });
+    }
+
+    results.sort((a, b) => b.score - a.score);
+    return results.slice(0, 5);
+  }
+
+  // ── Build a structured chat response from search results
+  function buildResponse(query, results) {
+    if (!results || results.length === 0) {
+      return {
+        answer: "I don't have specific information on that topic in my local knowledge base. Please consult the relevant OHS regulations for your jurisdiction, or contact your workplace safety officer. You can also connect an AI API for more comprehensive answers.",
+        refs: [],
+        followUp: ['What are general OHS employer duties?', 'How do I conduct a risk assessment?', 'Who should I contact for OHS advice?'],
+        disclaimer: true
+      };
+    }
+
+    const top = results[0];
+    let answer = '';
+    const refs = [];
+    const followUp = [];
+
+    if (top.type === 'faq') {
+      const f = top.data;
+      answer = f.answer;
+      followUp.push(...(f.followUp || []).slice(0, 3));
+      if (f.category) {
+        const related = results.filter(r => r !== top && r.type === 'article' && r.data.category === f.category);
+        if (related.length) refs.push(`Related article: ${related[0].data.title}`);
+      }
+    } else if (top.type === 'article') {
+      const a = top.data;
+      answer = a.summary + '\n\n**Key Requirements:**\n' +
+        a.keyRequirements.map(r => `• ${r}`).join('\n');
+      refs.push(...(a.references || []));
+      followUp.push('What PPE is required?', 'How do I document this?', 'What are the penalties for non-compliance?');
+    } else if (top.type === 'regulation') {
+      const r = top.data;
+      answer = `**${r.name}** (${r.year})\n\n${r.summary}`;
+      followUp.push('What are the key requirements?', 'Does this apply to my workplace?');
+    }
+
+    // Collect refs from secondary results
+    for (const r of results.slice(1, 3)) {
+      if (r.type === 'article' && r.data.references) {
+        refs.push(...r.data.references.slice(0, 2));
+      }
+    }
+
+    return {
+      answer,
+      refs: [...new Set(refs)].slice(0, 4),
+      followUp: [...new Set(followUp)].slice(0, 3),
+      disclaimer: true
+    };
+  }
+
+  // ── Get all categories ───────────────────────────────
+  async function getCategories() {
+    await loadData();
+    return _ohs.categories;
+  }
+
+  // ── Get articles, optionally filtered by category ────
+  async function getArticles(categoryId = null) {
+    await loadData();
+    if (!categoryId) return _ohs.articles;
+    return _ohs.articles.filter(a => a.category === categoryId);
+  }
+
+  // ── Get FAQs ─────────────────────────────────────────
+  async function getFAQs() {
+    await loadData();
+    return _faq.faqs;
+  }
+
+  // ── Get regulations ──────────────────────────────────
+  async function getRegulations() {
+    await loadData();
+    return _labour.regulations;
+  }
+
+  // ── Get resources ─────────────────────────────────────
+  async function getResources() {
+    await loadData();
+    return _labour.resources;
+  }
+
+  // ── Public API ───────────────────────────────────────
+  return { loadData, search, buildResponse, getCategories, getArticles, getFAQs, getRegulations, getResources };
+
+})();
+
+// ── Minimal fallback data (in case fetch fails, e.g. file:// protocol) ──
+const FALLBACK_OHS    = { categories: [], articles: [] };
+const FALLBACK_FAQ    = { faqs: [] };
+const FALLBACK_LABOUR = { regulations: [], resources: [] };
+
+</script>
+
+<script>
+/* ── CHAT JS ─────────────────────────────────── */
+/**
+ * chat.js – AI Safety Officer Chat Engine
+ *
+ * Handles the chat UI, message rendering, and AI API integration.
+ * Currently uses local knowledge base. Swap in any AI provider below.
+ */
+
+// ═══════════════════════════════════════════════════════
+//  AI PROVIDER CONFIGURATION
+//  Uncomment and configure the provider you want to use.
+// ═══════════════════════════════════════════════════════
+const AI_CONFIG = {
+  provider: 'local', // 'local' | 'openai' | 'claude' | 'gemini' | 'ollama' | 'openrouter'
+  apiKey: '',        // Set your API key here (or use a config UI)
+  model: '',         // e.g. 'gpt-4o', 'claude-sonnet-4-6', 'gemini-1.5-flash'
+  endpoint: '',      // For Ollama/OpenRouter/custom endpoints
+};
+
+// ═══════════════════════════════════════════════════════
+//  PROVIDER ADAPTERS
+// ═══════════════════════════════════════════════════════
+
+const AIProviders = {
+
+  /**
+   * Local knowledge base – no API key needed.
+   */
+  async local(query) {
+    const results = await OHSKnowledge.search(query);
+    return OHSKnowledge.buildResponse(query, results);
+  },
+
+  /**
+   * OpenAI – GPT-4o / GPT-4o-mini
+   * Set AI_CONFIG.apiKey and AI_CONFIG.model = 'gpt-4o'
+   */
+  async openai(query, history = []) {
+    const messages = [
+      { role: 'system', content: OHS_SYSTEM_PROMPT },
+      ...history,
+      { role: 'user', content: query }
+    ];
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AI_CONFIG.apiKey}` },
+      body: JSON.stringify({ model: AI_CONFIG.model || 'gpt-4o-mini', messages, max_tokens: 1024 })
+    });
+    const data = await res.json();
+    return { answer: data.choices?.[0]?.message?.content || 'No response.', refs: [], followUp: [], disclaimer: true };
+  },
+
+  /**
+   * Anthropic Claude – claude-haiku / sonnet / opus
+   * Set AI_CONFIG.apiKey and AI_CONFIG.model = 'claude-haiku-4-5'
+   */
+  async claude(query, history = []) {
+    const messages = history.concat([{ role: 'user', content: query }]);
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': AI_CONFIG.apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: AI_CONFIG.model || 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: OHS_SYSTEM_PROMPT,
+        messages
+      })
+    });
+    const data = await res.json();
+    return { answer: data.content?.[0]?.text || 'No response.', refs: [], followUp: [], disclaimer: true };
+  },
+
+  /**
+   * Google Gemini
+   * Set AI_CONFIG.apiKey and AI_CONFIG.model = 'gemini-1.5-flash'
+   */
+  async gemini(query) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${AI_CONFIG.model || 'gemini-1.5-flash'}:generateContent?key=${AI_CONFIG.apiKey}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: OHS_SYSTEM_PROMPT + '\n\nUser: ' + query }] }]
+      })
+    });
+    const data = await res.json();
+    return { answer: data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.', refs: [], followUp: [], disclaimer: true };
+  },
+
+  /**
+   * Ollama – Local LLM (llama3, mistral, etc.)
+   * Set AI_CONFIG.endpoint = 'http://localhost:11434' and AI_CONFIG.model = 'llama3'
+   */
+  async ollama(query) {
+    const res = await fetch(`${AI_CONFIG.endpoint || 'http://localhost:11434'}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: AI_CONFIG.model || 'llama3', prompt: OHS_SYSTEM_PROMPT + '\n\n' + query, stream: false })
+    });
+    const data = await res.json();
+    return { answer: data.response || 'No response.', refs: [], followUp: [], disclaimer: true };
+  },
+
+  /**
+   * OpenRouter – aggregated AI API
+   * Set AI_CONFIG.apiKey and AI_CONFIG.model = 'openai/gpt-4o-mini'
+   */
+  async openrouter(query, history = []) {
+    const messages = [
+      { role: 'system', content: OHS_SYSTEM_PROMPT },
+      ...history,
+      { role: 'user', content: query }
+    ];
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AI_CONFIG.apiKey}` },
+      body: JSON.stringify({ model: AI_CONFIG.model || 'openai/gpt-4o-mini', messages })
+    });
+    const data = await res.json();
+    return { answer: data.choices?.[0]?.message?.content || 'No response.', refs: [], followUp: [], disclaimer: true };
+  }
+};
+
+// ── System Prompt ─────────────────────────────────────
+const OHS_SYSTEM_PROMPT = `You are AI Safety Officer, an expert Occupational Health and Safety (OHS) assistant.
+Your role is to provide accurate, practical, and regulation-referenced guidance on workplace safety.
+
+Guidelines:
+- Always reference relevant regulations, standards (OSHA, ISO 45001, ILO conventions, local laws)
+- Provide actionable, step-by-step guidance
+- Include safety checklists when applicable
+- Always include a disclaimer that your responses are for guidance only and do not constitute legal advice
+- Encourage consulting qualified safety professionals for complex situations
+- Structure responses clearly with headings and bullet points
+- Suggest follow-up questions to help users explore related topics
+
+Topics you specialise in: PPE, confined spaces, working at heights, fall protection, fire safety, chemical safety, electrical safety, lockout/tagout, risk assessment, incident investigation, ergonomics, machine guarding, construction safety, excavation, scaffolding, emergency response, OHS management systems, ISO 45001, worker rights, employer duties.`;
+
+// ═══════════════════════════════════════════════════════
+//  CHAT STATE
+// ═══════════════════════════════════════════════════════
+
+let chatHistory   = [];  // [{role, content}]
+let conversations = JSON.parse(localStorage.getItem('ohs_chats') || '[]');
+let currentChatId = null;
+let isProcessing  = false;
+
+// ═══════════════════════════════════════════════════════
+//  QUERY HANDLER
+// ═══════════════════════════════════════════════════════
+
+async function sendQuery(query) {
+  if (!query.trim() || isProcessing) return;
+  isProcessing = true;
+
+  // Add user message to UI
+  appendUserMessage(query);
+  chatHistory.push({ role: 'user', content: query });
+  saveHistory();
+
+  // Show typing indicator
+  const typingEl = showTyping();
+
+  try {
+    // Call selected AI provider
+    const provider = AI_CONFIG.provider;
+    const fn = AIProviders[provider] || AIProviders.local;
+    const response = await fn(query, chatHistory.slice(-8));
+
+    // Remove typing indicator
+    typingEl.remove();
+
+    // Render AI response
+    appendAIMessage(response);
+    chatHistory.push({ role: 'assistant', content: response.answer });
+    saveHistory();
+
+  } catch (err) {
+    typingEl.remove();
+    console.error('AI query error:', err);
+    const fallback = await AIProviders.local(query);
+    appendAIMessage(fallback);
+  }
+
+  isProcessing = false;
+  scrollToBottom();
+}
+
+// ═══════════════════════════════════════════════════════
+//  MESSAGE RENDERING
+// ═══════════════════════════════════════════════════════
+
+function appendUserMessage(text) {
+  const el = document.createElement('div');
+  el.className = 'message user fade-in';
+  el.innerHTML = `
+    <div class="message-avatar"><i class="fa-solid fa-user"></i></div>
+    <div class="message-bubble">
+      <div class="message-content"><p>${escapeHtml(text)}</p></div>
+      <div class="message-meta">
+        <span>${formatTime()}</span>
+        <div class="message-actions">
+          <button class="msg-action-btn" onclick="copyToClipboard(this, '${escapeHtml(text)}')" data-tooltip="Copy"><i class="fa-regular fa-copy"></i></button>
+        </div>
+      </div>
+    </div>`;
+  getMessagesEl().appendChild(el);
+  scrollToBottom();
+}
+
+function appendAIMessage(response) {
+  const { answer, refs = [], followUp = [], disclaimer = true } = response;
+
+  const refsHtml = refs.length ? `
+    <div class="ai-response-extras">
+      <div class="mb-1" style="font-size:.78rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">References</div>
+      ${refs.map(r => `<div class="regulation-ref"><i class="fa-solid fa-book-open me-1"></i>${escapeHtml(r)}</div>`).join('')}
+    </div>` : '';
+
+  const discHtml = disclaimer ? `
+    <div class="disclaimer">
+      <i class="fa-solid fa-circle-info me-1"></i>
+      <strong>Disclaimer:</strong> This guidance is for information only and does not constitute legal advice. Always consult qualified OHS professionals and the relevant regulations for your jurisdiction.
+    </div>` : '';
+
+  const followUpHtml = followUp.length ? `
+    <div class="follow-up-chips">
+      ${followUp.map(q => `<button class="follow-up-chip" onclick="sendQuery(${JSON.stringify(q)})">${escapeHtml(q)}</button>`).join('')}
+    </div>` : '';
+
+  const answerHtml = markdownToHtml(answer);
+
+  const el = document.createElement('div');
+  el.className = 'message ai fade-in';
+  el.innerHTML = `
+    <div class="message-avatar"><i class="fa-solid fa-shield-halved"></i></div>
+    <div class="message-bubble">
+      <div class="message-content">
+        <div class="ai-answer">${answerHtml}</div>
+        ${refsHtml}
+        ${discHtml}
+        ${followUpHtml}
+      </div>
+      <div class="message-meta">
+        <span>${formatTime()}</span>
+        <div class="message-actions">
+          <button class="msg-action-btn" onclick="copyToClipboard(this, ${JSON.stringify(answer)})" data-tooltip="Copy"><i class="fa-regular fa-copy"></i></button>
+          <button class="msg-action-btn" onclick="regenerateLast()" data-tooltip="Regenerate"><i class="fa-solid fa-rotate-right"></i></button>
+        </div>
+      </div>
+    </div>`;
+  getMessagesEl().appendChild(el);
+  scrollToBottom();
+}
+
+function showTyping() {
+  const el = document.createElement('div');
+  el.className = 'message ai typing-indicator fade-in';
+  el.innerHTML = `
+    <div class="message-avatar"><i class="fa-solid fa-shield-halved"></i></div>
+    <div class="message-content">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>`;
+  getMessagesEl().appendChild(el);
+  scrollToBottom();
+  return el;
+}
+
+// ═══════════════════════════════════════════════════════
+//  CHAT CONTROLS
+// ═══════════════════════════════════════════════════════
+
+function startNewChat() {
+  if (chatHistory.length > 0) {
+    // Save current chat
+    const title = chatHistory.find(m => m.role === 'user')?.content.slice(0, 50) || 'Chat';
+    conversations.unshift({ id: Date.now(), title, history: chatHistory, time: new Date().toISOString() });
+    localStorage.setItem('ohs_chats', JSON.stringify(conversations.slice(0, 20)));
+  }
+  chatHistory = [];
+  currentChatId = null;
+  const msgs = getMessagesEl();
+  if (msgs) msgs.innerHTML = '';
+  showWelcomeScreen();
+  renderHistorySidebar();
+}
+
+function clearChat() {
+  chatHistory = [];
+  const msgs = getMessagesEl();
+  if (msgs) msgs.innerHTML = '';
+  showWelcomeScreen();
+}
+
+function regenerateLast() {
+  const lastUser = [...chatHistory].reverse().find(m => m.role === 'user');
+  if (!lastUser) return;
+  // Remove last AI message from history and UI
+  const last = chatHistory.pop();
+  if (last?.role === 'assistant') {
+    const msgs = getMessagesEl();
+    msgs.lastElementChild?.remove();
+  }
+  sendQuery(lastUser.content);
+}
+
+// ═══════════════════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════════════════
+
+function saveHistory() {
+  if (!currentChatId) {
+    currentChatId = Date.now();
+    conversations.unshift({ id: currentChatId, title: chatHistory[0]?.content?.slice(0, 50) || 'Chat', history: chatHistory, time: new Date().toISOString() });
+  } else {
+    const idx = conversations.findIndex(c => c.id === currentChatId);
+    if (idx >= 0) conversations[idx].history = chatHistory;
+  }
+  localStorage.setItem('ohs_chats', JSON.stringify(conversations.slice(0, 20)));
+  renderHistorySidebar();
+}
+
+function loadConversation(id) {
+  const conv = conversations.find(c => c.id === id);
+  if (!conv) return;
+  chatHistory = conv.history;
+  currentChatId = id;
+  const msgs = getMessagesEl();
+  if (!msgs) return;
+  msgs.innerHTML = '';
+  // Replay messages
+  for (const m of chatHistory) {
+    if (m.role === 'user') appendUserMessage(m.content);
+    else appendAIMessage({ answer: m.content, refs: [], followUp: [], disclaimer: false });
+  }
+}
+
+function renderHistorySidebar() {
+  const el = document.getElementById('chat-history-list');
+  if (!el) return;
+  el.innerHTML = conversations.slice(0, 10).map(c => `
+    <div class="history-item ${c.id === currentChatId ? 'active' : ''}" onclick="loadConversation(${c.id})">
+      <i class="fa-regular fa-message"></i>
+      ${escapeHtml(c.title || 'OHS Chat')}
+    </div>`).join('') || '<div class="history-item" style="opacity:.4">No history yet</div>';
+}
+
+function clearHistory() {
+  conversations = [];
+  localStorage.removeItem('ohs_chats');
+  renderHistorySidebar();
+}
+
+// ═══════════════════════════════════════════════════════
+//  WELCOME SCREEN
+// ═══════════════════════════════════════════════════════
+
+const EXAMPLE_PROMPTS = [
+  { title: 'Fall Protection', text: 'Is a safety harness required when working at heights?' },
+  { title: 'Welding PPE', text: 'What PPE is required for welding operations?' },
+  { title: 'Confined Spaces', text: 'What is a confined space and how do I enter one safely?' },
+  { title: 'Risk Assessment', text: 'How do I conduct a workplace risk assessment?' },
+  { title: 'Chemical Storage', text: 'How should hazardous chemicals be stored safely?' },
+  { title: 'LOTO Procedure', text: 'Explain the lockout/tagout procedure step by step.' },
+  { title: 'Fire Extinguisher', text: 'How often should fire extinguishers be inspected?' },
+  { title: 'Worker Rights', text: 'Can workers refuse to do unsafe work?' },
+];
+
+function showWelcomeScreen() {
+  const msgs = getMessagesEl();
+  if (!msgs) return;
+  const randomPrompts = EXAMPLE_PROMPTS.sort(() => Math.random() - .5).slice(0, 4);
+  msgs.innerHTML = `
+    <div class="chat-welcome">
+      <div class="chat-welcome-icon">🛡️</div>
+      <h3>AI Safety Officer</h3>
+      <p>Your intelligent OHS assistant. Ask about workplace safety, regulations, PPE, risk assessments, and more.</p>
+      <div class="prompt-grid">
+        ${randomPrompts.map(p => `
+          <div class="prompt-card" onclick="sendQuery(${JSON.stringify(p.text)})">
+            <div class="prompt-card-title">${escapeHtml(p.title)}</div>
+            <div class="prompt-card-text">${escapeHtml(p.text)}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════
+
+function getMessagesEl() {
+  return document.getElementById('chat-messages');
+}
+
+function scrollToBottom() {
+  const el = getMessagesEl();
+  if (el) el.scrollTop = el.scrollHeight;
+}
+
+function formatTime() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function escapeHtml(str = '') {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function markdownToHtml(text = '') {
+  return text
+    // Headings
+    .replace(/^### (.+)$/gm, '<h5>$1</h5>')
+    .replace(/^## (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^# (.+)$/gm, '<h3>$1</h3>')
+    // Bold
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Code inline
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    // Bullet points
+    .replace(/^[•\-\*] (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    // Numbered lists
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    // Paragraphs
+    .split('\n\n')
+    .map(p => p.trim() ? (p.startsWith('<') ? p : `<p>${p.replace(/\n/g, '<br>')}</p>`) : '')
+    .join('');
+}
+
+function copyToClipboard(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const icon = btn.querySelector('i');
+    if (icon) {
+      icon.className = 'fa-solid fa-check';
+      setTimeout(() => { icon.className = 'fa-regular fa-copy'; }, 2000);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  AUTO-RESIZE TEXTAREA
+// ═══════════════════════════════════════════════════════
+
+function setupTextarea() {
+  const textarea = document.getElementById('chat-input');
+  if (!textarea) return;
+
+  textarea.addEventListener('input', () => {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 160) + 'px';
+  });
+
+  textarea.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submitChat();
+    }
+  });
+
+  document.getElementById('chat-send-btn')?.addEventListener('click', submitChat);
+}
+
+function submitChat() {
+  const textarea = document.getElementById('chat-input');
+  if (!textarea) return;
+  const val = textarea.value.trim();
+  if (!val) return;
+  textarea.value = '';
+  textarea.style.height = 'auto';
+  sendQuery(val);
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!document.getElementById('chat-messages')) return; // Not on chat page
+  conversations = JSON.parse(localStorage.getItem('ohs_chats') || '[]');
+  showWelcomeScreen();
+  renderHistorySidebar();
+  setupTextarea();
+
+  // Sidebar toggle (mobile)
+  document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
+    document.getElementById('chat-sidebar')?.classList.toggle('open');
+    document.getElementById('sidebar-overlay')?.classList.toggle('active');
+  });
+  document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
+    document.getElementById('chat-sidebar')?.classList.remove('open');
+    document.getElementById('sidebar-overlay')?.classList.remove('active');
+  });
+});
+
+
+// API key helper
+function promptAPIKey(provider) {
+  const key = prompt(`Enter your ${provider.toUpperCase()} API key (stored locally in your browser):`);
+  if (key) {
+    AI_CONFIG.apiKey = key;
+    AI_CONFIG.provider = provider;
+    localStorage.setItem('ohs_api_config', JSON.stringify({ provider, apiKey: key }));
+    alert(`✅ ${provider.toUpperCase()} connected! Your next message will use the live AI.`);
+  }
+}
+// Restore API config
+(function() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('ohs_api_config') || '{}');
+    if (saved.apiKey) { AI_CONFIG.apiKey = saved.apiKey; AI_CONFIG.provider = saved.provider || 'local'; }
+  } catch(e) {}
+})();
+</script>
+
+<script>
+/* ── APP JS ──────────────────────────────────── */
+/**
+ * app.js – Global Application Controller
+ * Dark mode, navigation, search, FAQ accordion, resource rendering, etc.
+ */
+
+// ── Dark Mode ─────────────────────────────────────────
+const ThemeManager = {
+  init() {
+    const saved = localStorage.getItem('ohs_theme') || 'light';
+    this.apply(saved);
+    document.querySelectorAll('.dark-toggle').forEach(btn => {
+      btn.addEventListener('click', () => this.toggle());
+    });
+  },
+  toggle() {
+    const current = document.documentElement.getAttribute('data-theme');
+    this.apply(current === 'dark' ? 'light' : 'dark');
+  },
+  apply(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('ohs_theme', theme);
+    document.querySelectorAll('.dark-toggle').forEach(btn => {
+      btn.innerHTML = theme === 'dark'
+        ? '<i class="fa-solid fa-sun"></i>'
+        : '<i class="fa-solid fa-moon"></i>';
+      btn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    });
+  }
+};
+
+// ── Active Nav Link ───────────────────────────────────
+function setActiveNavLink() {
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.nav-link-ohs').forEach(link => {
+    const href = link.getAttribute('href') || '';
+    link.classList.toggle('active', href === path || (path === '' && href === 'index.html'));
+  });
+}
+
+// ── FAQ Accordion ─────────────────────────────────────
+function setupAccordion() {
+  document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => {
+      const answer = q.nextElementSibling;
+      const isOpen = answer.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+      document.querySelectorAll('.faq-question').forEach(qq => qq.classList.remove('active'));
+      // Toggle clicked
+      if (!isOpen) {
+        answer.classList.add('open');
+        q.classList.add('active');
+      }
+    });
+  });
+}
+
+// ── Smooth scroll for anchor links ───────────────────
+function setupAnchorScroll() {
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+}
+
+// ── Hero Search – redirect to chat ───────────────────
+function setupHeroSearch() {
+  const form = document.getElementById('hero-search-form');
+  const input = document.getElementById('hero-search-input');
+  if (!form || !input) return;
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const q = input.value.trim();
+    if (q) {
+      sessionStorage.setItem('ohs_initial_query', q);
+      window.location.href = 'chat.html';
+    }
+  });
+
+  // Hero pill clicks
+  document.querySelectorAll('.hero-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const q = pill.textContent.trim();
+      sessionStorage.setItem('ohs_initial_query', q);
+      window.location.href = 'chat.html';
+    });
+  });
+}
+
+// ── Load initial query from homepage search ───────────
+function loadInitialQuery() {
+  const q = sessionStorage.getItem('ohs_initial_query');
+  if (q) {
+    sessionStorage.removeItem('ohs_initial_query');
+    // slight delay to let DOM render
+    setTimeout(() => sendQuery(q), 400);
+  }
+}
+
+// ── Knowledge Base Rendering ──────────────────────────
+async function renderKnowledgeBase() {
+  const catGrid = document.getElementById('category-grid');
+  const articleGrid = document.getElementById('article-grid');
+  if (!catGrid && !articleGrid) return;
+
+  const categories = await OHSKnowledge.getCategories();
+  const articles   = await OHSKnowledge.getArticles();
+
+  if (catGrid) {
+    catGrid.innerHTML = categories.map(c => `
+      <a href="#articles" class="category-card" data-category="${c.id}" onclick="filterArticles('${c.id}')">
+        <span class="cat-icon">${c.icon}</span>
+        <div>
+          <div class="cat-name">${c.name}</div>
+          <div class="cat-count">${c.count} articles</div>
+        </div>
+      </a>`).join('');
+  }
+
+  if (articleGrid) {
+    renderArticles(articles);
+  }
+}
+
+function renderArticles(articles) {
+  const grid = document.getElementById('article-grid');
+  if (!grid) return;
+  if (!articles.length) {
+    grid.innerHTML = '<div class="col-12 text-center py-4 text-muted">No articles found.</div>';
+    return;
+  }
+  grid.innerHTML = articles.map(a => `
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="article-card">
+        <div class="article-meta">
+          <span class="badge-ohs blue">${a.category}</span>
+          ${a.tags.slice(0,2).map(t => `<span class="badge-ohs orange">${t}</span>`).join('')}
+        </div>
+        <h5>${a.title}</h5>
+        <p>${a.summary}</p>
+        <div class="article-footer">
+          <span style="font-size:.78rem;color:var(--text-muted)">${a.keyRequirements.length} requirements</span>
+          <button class="btn-primary-ohs" style="padding:.4rem .9rem;font-size:.8rem" onclick="openArticleModal('${a.id}')">
+            <i class="fa-solid fa-book-open"></i> Read
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+let allArticles = [];
+async function filterArticles(categoryId) {
+  if (!allArticles.length) allArticles = await OHSKnowledge.getArticles();
+  const filtered = categoryId === 'all' ? allArticles : allArticles.filter(a => a.category === categoryId);
+  renderArticles(filtered);
+
+  // Update filter chips
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.category === categoryId);
+  });
+}
+
+async function openArticleModal(id) {
+  if (!allArticles.length) allArticles = await OHSKnowledge.getArticles();
+  const article = allArticles.find(a => a.id === id);
+  if (!article) return;
+
+  const modalBody = document.getElementById('article-modal-body');
+  if (!modalBody) return;
+
+  modalBody.innerHTML = `
+    <div class="mb-3">
+      ${article.tags.map(t => `<span class="badge-ohs blue me-1">${t}</span>`).join('')}
+    </div>
+    <h4>${article.title}</h4>
+    <p>${article.summary}</p>
+
+    <h6 class="mt-4 mb-3"><i class="fa-solid fa-list-check me-2 text-primary"></i>Key Requirements</h6>
+    <ul class="list-unstyled">
+      ${article.keyRequirements.map(r => `<li class="mb-2"><i class="fa-solid fa-circle-check me-2 text-success"></i>${r}</li>`).join('')}
+    </ul>
+
+    <h6 class="mt-4 mb-3"><i class="fa-solid fa-clipboard-check me-2 text-primary"></i>Checklist</h6>
+    ${article.checklist.map((item, i) => `
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="chk-${id}-${i}">
+        <label class="form-check-label" for="chk-${id}-${i}" style="font-size:.88rem">${item.item}</label>
+      </div>`).join('')}
+
+    <h6 class="mt-4 mb-3"><i class="fa-solid fa-book-open me-2 text-primary"></i>References</h6>
+    ${article.references.map(r => `<div class="regulation-ref">${r}</div>`).join('')}
+
+    <div class="mt-4">
+      <button class="btn-primary-ohs" onclick="sessionStorage.setItem('ohs_initial_query','Tell me more about ${article.title}');window.location='chat.html'">
+        <i class="fa-solid fa-comments"></i> Ask AI about this topic
+      </button>
+    </div>`;
+
+  const modalTitle = document.getElementById('article-modal-title');
+  if (modalTitle) modalTitle.textContent = article.title;
+
+  const modal = new bootstrap.Modal(document.getElementById('articleModal'));
+  modal.show();
+}
+
+// ── Knowledge Base Search ─────────────────────────────
+function setupKBSearch() {
+  const input = document.getElementById('kb-search');
+  if (!input) return;
+
+  let debounceTimer;
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(async () => {
+      const q = input.value.trim();
+      if (!q) {
+        filterArticles('all');
+        return;
+      }
+      const results = await OHSKnowledge.search(q);
+      const articles = results
+        .filter(r => r.type === 'article')
+        .map(r => r.data);
+      renderArticles(articles);
+    }, 300);
+  });
+}
+
+// ── Resources Rendering ───────────────────────────────
+async function renderResources() {
+  const grid = document.getElementById('resources-grid');
+  const regGrid = document.getElementById('regulations-grid');
+  if (!grid && !regGrid) return;
+
+  const resources    = await OHSKnowledge.getResources();
+  const regulations  = await OHSKnowledge.getRegulations();
+
+  if (grid) {
+    grid.innerHTML = resources.map(r => `
+      <div class="col-sm-6 col-lg-3 mb-4">
+        <div class="resource-card">
+          <div class="resource-icon">${r.icon}</div>
+          <span class="badge-ohs ${r.format === 'PDF' ? 'orange' : r.format === 'XLSX' ? 'green' : 'blue'} mb-2">${r.format}</span>
+          <h5>${r.title}</h5>
+          <p>${r.description}</p>
+          <button class="btn-secondary-ohs mt-2" style="font-size:.8rem;padding:.35rem .8rem" onclick="alert('Resource downloads will be available when hosted. For now, ask the AI Assistant for guidance.')">
+            <i class="fa-solid fa-download"></i> Download
+          </button>
+        </div>
+      </div>`).join('');
+  }
+
+  if (regGrid) {
+    regGrid.innerHTML = regulations.map(r => `
+      <div class="col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="d-flex align-items-start gap-3">
+            <div class="feature-icon blue" style="font-size:1.5rem">${r.icon}</div>
+            <div>
+              <div class="d-flex gap-2 align-items-center mb-1 flex-wrap">
+                <span class="badge-ohs blue">${r.type}</span>
+                <span class="badge-ohs orange">${r.jurisdiction}</span>
+                <span class="text-muted" style="font-size:.78rem">${r.year}</span>
+              </div>
+              <h5 style="font-size:.95rem">${r.name}</h5>
+              <p style="font-size:.85rem">${r.summary}</p>
+              <button class="btn-secondary-ohs mt-2" style="font-size:.78rem;padding:.3rem .75rem"
+                onclick="sessionStorage.setItem('ohs_initial_query','Tell me about ${r.name}');window.location='chat.html'">
+                <i class="fa-solid fa-robot"></i> Ask AI
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+}
+
+// ── Contact Form ──────────────────────────────────────
+function setupContactForm() {
+  const form = document.getElementById('contact-form');
+  if (!form) return;
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const btn = form.querySelector('[type="submit"]');
+    btn.innerHTML = '<i class="fa-solid fa-check me-2"></i>Message Sent!';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Send Message';
+      btn.disabled = false;
+      form.reset();
+    }, 3000);
+  });
+}
+
+// ── Announcement Banner dismiss ───────────────────────
+function setupBanner() {
+  const btn = document.getElementById('dismiss-banner');
+  const banner = document.getElementById('info-banner');
+  if (btn && banner) {
+    if (localStorage.getItem('ohs_banner_dismissed')) banner.remove();
+    btn.addEventListener('click', () => {
+      banner.remove();
+      localStorage.setItem('ohs_banner_dismissed', '1');
+    });
+  }
+}
+
+// ── Scroll to top button ──────────────────────────────
+function setupScrollTop() {
+  const btn = document.getElementById('scroll-top');
+  if (!btn) return;
+  window.addEventListener('scroll', () => {
+    btn.style.opacity = window.scrollY > 400 ? '1' : '0';
+    btn.style.pointerEvents = window.scrollY > 400 ? 'auto' : 'none';
+  });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+}
+
+// ── FAQ rendering on knowledge page ──────────────────
+async function renderFAQs() {
+  const container = document.getElementById('faq-container');
+  if (!container) return;
+  const faqs = await OHSKnowledge.getFAQs();
+  container.innerHTML = faqs.map(f => `
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>${f.question}</span>
+        <i class="fa-solid fa-chevron-down faq-chevron"></i>
+      </div>
+      <div class="faq-answer">
+        <p>${f.answer}</p>
+        ${f.followUp?.length ? `
+          <div class="follow-up-chips mt-2">
+            ${f.followUp.map(q => `
+              <a href="chat.html" class="follow-up-chip"
+                onclick="sessionStorage.setItem('ohs_initial_query','${q.replace(/'/g, "\\'")}')">
+                ${q}
+              </a>`).join('')}
+          </div>` : ''}
+      </div>
+    </div>`).join('');
+  setupAccordion();
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  ThemeManager.init();
+  setActiveNavLink();
+  setupAnchorScroll();
+  setupHeroSearch();
+  setupAccordion();
+  setupBanner();
+  setupScrollTop();
+  setupContactForm();
+
+  // Knowledge page
+  renderKnowledgeBase();
+  setupKBSearch();
+  renderFAQs();
+
+  // Resources page
+  renderResources();
+
+  // Chat page – load initial query if redirected from homepage
+  if (document.getElementById('chat-messages')) {
+    loadInitialQuery();
+  }
+
+  // Animate numbers in stats bar
+  animateCounters();
+});
+
+function animateCounters() {
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count);
+    let current = 0;
+    const step = Math.ceil(target / 40);
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current + (el.dataset.suffix || '');
+      if (current >= target) clearInterval(timer);
+    }, 30);
+  });
+}
+
+
+// Override navigation functions for SPA
+function setupHeroSearch() {
+  const form = document.getElementById('hero-search-form');
+  const input = document.getElementById('hero-search-input');
+  if (!form || !input) return;
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const q = input.value.trim();
+    if (q) {
+      showPage('chat');
+      setTimeout(() => sendQuery(q), 300);
+    }
+  });
+  document.querySelectorAll('.hero-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const q = pill.textContent.trim();
+      showPage('chat');
+      setTimeout(() => sendQuery(q), 300);
+    });
+  });
+}
+
+// Patch openArticleModal to navigate in SPA
+const _origOpenArticle = window.openArticleModal;
+async function openArticleModal(id) {
+  if (!allArticles.length) allArticles = await OHSKnowledge.getArticles();
+  const article = allArticles.find(a => a.id === id);
+  if (!article) return;
+  const modalBody = document.getElementById('article-modal-body');
+  if (!modalBody) return;
+  modalBody.innerHTML = `
+    <div class="mb-3">${article.tags.map(t => `<span class="badge-ohs blue me-1">${t}</span>`).join('')}</div>
+    <h4>${article.title}</h4>
+    <p>${article.summary}</p>
+    <h6 class="mt-4 mb-3"><i class="fa-solid fa-list-check me-2 text-primary"></i>Key Requirements</h6>
+    <ul class="list-unstyled">${article.keyRequirements.map(r => `<li class="mb-2"><i class="fa-solid fa-circle-check me-2 text-success"></i>${r}</li>`).join('')}</ul>
+    <h6 class="mt-4 mb-3"><i class="fa-solid fa-clipboard-check me-2 text-primary"></i>Checklist</h6>
+    ${article.checklist.map((item, i) => `<div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="chk-${id}-${i}"><label class="form-check-label" for="chk-${id}-${i}" style="font-size:.88rem">${item.item}</label></div>`).join('')}
+    <h6 class="mt-4 mb-3"><i class="fa-solid fa-book-open me-2 text-primary"></i>References</h6>
+    ${article.references.map(r => `<div class="regulation-ref">${r}</div>`).join('')}
+    <div class="mt-4"><button class="btn-primary-ohs" onclick="showPage('chat');setTimeout(()=>sendQuery('Tell me more about ${article.title}'),300)"><i class="fa-solid fa-comments"></i> Ask AI about this topic</button></div>`;
+  document.getElementById('article-modal-title').textContent = article.title;
+  const modal = new bootstrap.Modal(document.getElementById('articleModal'));
+  modal.show();
+}
+</script>
+
+</body>
+</html>
